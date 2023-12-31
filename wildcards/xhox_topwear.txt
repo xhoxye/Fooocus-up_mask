@@ -1,6 +1,6 @@
-white shirt
 Yoga vest
 blouse
+white shirt
 collared shirt
 dress shirt
 sailor shirt
@@ -25,9 +25,9 @@ shirt
 sleeveless hoodie
 sleeveless shirt
 striped shirt
+tank top
 vest
 waistcoat
-tank top
 camisole
 tied shirt
 undershirt

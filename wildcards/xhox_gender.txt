@@ -1,10 +1,4 @@
-a woman
-a man
-a female
-a male
-1girl
-1boy
-a tranny
-a sissy
-a femboy
-a genderless
+woman
+man
+female
+male
