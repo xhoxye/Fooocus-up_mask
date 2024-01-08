@@ -16,6 +16,8 @@ import modules.style_sorter as style_sorter
 import modules.meta_parser
 import args_manager
 import copy
+
+
 import ui_wildcards_enhance
 
 from modules.sdxl_styles import legal_style_names
@@ -476,6 +478,50 @@ with shared.gradio_root:
 
             # ui_wildcards_enhance tab. Annotation tags for searching xhoxye
             ui_wildcards_enhance.ui_wildcards_enhance(prompt) 
+
+
+
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
+
+
+
+ 
+
+  
+
+
+
+
+
+         
+               
 
         performance_selection.change(lambda x: [gr.update(interactive=x != 'Extreme Speed')] * 11 +
                                                [gr.update(visible=x != 'Extreme Speed')] * 1,
