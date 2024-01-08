@@ -231,7 +231,7 @@
 }
 
 .contain .tabs .tabitem.style_selections_tab .style_selections .wrap[data-testid="checkbox-group"] label {
-  max-width: calc(50% - 15px) !important;   
+  max-width: calc(50% - 5px) !important;   
   flex: calc(50% - 5px) !important;
   padding:2px 5px;    
 }
