@@ -43,7 +43,6 @@ cashier
 mailman
 barista
 doctor
-trap
 spy
 agent
 assassin
