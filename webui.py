@@ -16,6 +16,7 @@ import modules.style_sorter as style_sorter
 import modules.meta_parser
 import args_manager
 import copy
+import ui_wildcards_enhance
 import launch
 
 from modules.sdxl_styles import legal_style_names
@@ -488,6 +489,9 @@ with shared.gradio_root:
                 model_refresh.click(model_refresh_clicked, [],  model_refresh_output + lora_ctrls,
                                     queue=False, show_progress=False)
 
+            # ui_wildcards_enhance tab. Annotation tags for searching xhoxye
+            ui_wildcards_enhance.ui_wildcards_enhance(prompt) 
+            
         state_is_generating = gr.State(False)
 
         load_parameter_outputs = [
