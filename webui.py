@@ -16,6 +16,7 @@ import modules.style_sorter as style_sorter
 import modules.meta_parser
 import args_manager
 import copy
+import ui_wildcards_enhance
 import launch
 
 from modules.sdxl_styles import legal_style_names
@@ -261,10 +262,12 @@ with shared.gradio_root:
                 seed_random.change(random_checked, inputs=[seed_random], outputs=[image_seed],
                                    queue=False, show_progress=False)
 
+                read_wildcard_in_order_checkbox = gr.Checkbox(label="Read wildcard in order with same seed", value=False)
+
                 if not args_manager.args.disable_image_log:
                     gr.HTML(f'<a href="file={get_current_html_path()}" target="_blank">\U0001F4DA History Log</a>')
 
-            with gr.Tab(label='Style'):
+            with gr.Tab(label='Style', elem_classes=['style_selections_tab']):
                 style_sorter.try_load_sorted_styles(
                     style_names=legal_style_names,
                     default_selected=modules.config.default_styles)
@@ -486,6 +489,9 @@ with shared.gradio_root:
                 model_refresh.click(model_refresh_clicked, [],  model_refresh_output + lora_ctrls,
                                     queue=False, show_progress=False)
 
+            # ui_wildcards_enhance tab. Annotation tags for searching xhoxye
+            ui_wildcards_enhance.ui_wildcards_enhance(prompt) 
+            
         state_is_generating = gr.State(False)
 
         load_parameter_outputs = [
@@ -526,6 +532,7 @@ with shared.gradio_root:
                 lora_downloads = preset_prepared['lora_downloads']
                 preset_prepared['Base Model'], preset_prepared['lora_downloads'] = launch.download_models(
                     default_model, previous_default_models, checkpoint_downloads, embeddings_downloads, lora_downloads)
+
 
                 return modules.meta_parser.load_parameter_button_click(json.dumps(preset_prepared), is_generating)
 
@@ -582,7 +589,7 @@ with shared.gradio_root:
 
         ctrls = [
             prompt, negative_prompt, style_selections,
-            performance_selection, aspect_ratios_selection, image_number, image_seed, sharpness, guidance_scale
+            performance_selection, aspect_ratios_selection, image_number, image_seed, read_wildcard_in_order_checkbox, sharpness, guidance_scale
         ]
 
         ctrls += [base_model, refiner_model, refiner_switch] + lora_ctrls
