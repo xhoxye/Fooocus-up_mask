@@ -202,7 +202,7 @@ previous_default_models = get_config_item_or_set_default(
     default_value=[],
     validator=lambda x: isinstance(x, list) and all(isinstance(k, str) for k in x)
 )
-default_refiner_model_name = get_config_item_or_set_default(
+default_refiner_model_name = default_refiner = get_config_item_or_set_default(
     key='default_refiner',
     default_value='None',
     validator=lambda x: isinstance(x, str)
