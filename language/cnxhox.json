@@ -295,7 +295,7 @@
 
 	"Drag above image to here": "将图像拖放至此处",
 	"Upscale or Variation": "图像放大和变化",
-	"Upscale or Variation:": "（重绘幅度的默认值：变化细微=0.50，变化强烈=0.85，放大=0.382，其他数值在“开发者模式”里设置）",
+	"Upscale or Variation:": "（重绘幅度的默认值：变化细微=0.50，变化强烈=0.85，放大=0.382，其他数值在“开发者模式”里设置，快速放大没有重绘）",
 	"Disabled": "不启用",
 	"Vary (Subtle)": "变化（细微）",
 	"Vary (Strong)": "变化（强烈）",
