@@ -16,6 +16,7 @@ import modules.meta_parser
 import args_manager
 import copy
 import launch
+import ui_wildcards_enhance #这一行是添加的
 
 from modules.sdxl_styles import legal_style_names
 from modules.private_logger import get_current_html_path
@@ -540,6 +541,7 @@ with shared.gradio_root:
                     refresh_files_output += [preset_selection]
                 refresh_files.click(refresh_files_clicked, [], refresh_files_output + lora_ctrls,
                                     queue=False, show_progress=False)
+            ui_wildcards_enhance.ui_wildcards_enhance(prompt)   #这一行是添加的
 
         state_is_generating = gr.State(False)
 
