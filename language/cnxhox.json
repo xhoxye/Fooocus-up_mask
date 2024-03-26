@@ -263,7 +263,7 @@
 	"Read wildcard in order with same seed": "顺序读取通配符，并使用相同种子",
 	"Read wildcards in order": "顺序读取通配符",
 
-	"Preset": "xhox 的预设",
+	"Preset": "预设",
 	"initial": "初始",
 	"default": "默认",
 	"lcm": "LCM",
@@ -285,7 +285,7 @@
 	"Type prompt here or paste parameters.": "在这里 输入提示词 或 粘贴参数 。",
 	"Load Parameters": "加载参数",
 	"Copy to Clipboard": "复制到剪贴板",
-	"Generate": "生成 by xhox",
+	"Generate": "生成",
 	"Skip": "跳过",
 	"Stop": "停止",
 	"Generate forever": "无限生成",
