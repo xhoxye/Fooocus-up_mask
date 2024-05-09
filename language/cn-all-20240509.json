@@ -2243,7 +2243,7 @@
     "Image Prompt parameters are not included. Use png and a1111 for compatibility with Civitai.": "图像提示参数未包含在内。使用png和a1111以与Civitai兼容。",
     "fooocus (json)": "fooocus（json）",
     "a1111 (plain text)": "a1111（纯文本）",
-    "Unsupported image type in input": "输入中的不受支持的图像类型"
+    "Unsupported image type in input": "输入中的不受支持的图像类型",
 
   "Preview": "预览",
   "Finished Images": "已完成图片",
