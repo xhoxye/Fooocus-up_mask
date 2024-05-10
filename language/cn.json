@@ -260,10 +260,7 @@
     "Canny Low Threshold": "Canny 弱边缘判断阈值（低于该值的线条会被忽略过滤）",
     "Canny High Threshold": "Canny 强边缘判断阈值（高于该值的线条会被保留，高值是低值的2~3倍最好）",
 
-
-    "Inpaint Engine": "Inpaint Engine",
     "v1": "v1",
-    "Version of Fooocus inpaint model": "Version of Fooocus inpaint model",
     "v2.5": "v2.5",
     "Inpaint": "内部重绘",
     "Debug Inpaint Preprocessing": "调试内部重绘预处理（查看预处理结果）",
