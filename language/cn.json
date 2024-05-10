@@ -616,8 +616,9 @@
     "Pa Photography Vintage": "Pa 复古摄影",
     "Pa Photography Wildlife": "Pa 野生动物摄影",
     
-    "Pa Painting": "Pa 绘画",
+    "|pa Painting": "Pa 绘画",
     "Pa Painting Abstract Expressionism": "Pa 抽象表现主义 |绘画",
+    "Pa Paintingacrylic": "Pa 丙烯画",
     "Pa Painting Acrylic": "Pa 丙烯画",
     "Pa Painting Aerosol": "Pa 喷漆画",
     "Pa Painting Children Book Art": "Pa 儿童绘本 |绘画",
@@ -646,7 +647,7 @@
     "Pa Painting Watercolor Cartoon": "Pa 水彩卡通 |绘画",
     "Pa Painting Watercolor On White Bg": "Pa 白背景水彩 |绘画",
     
-    "Pa Illustrations": "Pa 插画",
+    "|pa Illustrations": "Pa 插画",
     "Pa Illustration Art Deco": "Pa 艺术装饰插画",
     "Pa Illustration Anime": "Pa 动漫插画",
     "Pa Illustration Anime Chibi": "Pa Q版动漫插画",
@@ -669,7 +670,7 @@
     "Pa Illustration Sticker Cute": "Pa 可爱贴纸 |插画",
     "Pa Illustration Sticker Watercolor": "Pa 水彩贴纸 |插画",
     
-    "Pa Drawing": "Pa 绘画",
+    "|pa Drawing": "Pa 绘画",
     "Pa Drawing Blue Ballpoint Pen": "Pa 蓝色圆珠笔画 |手绘",
     "Pa Drawing Caricature": "Pa 夸张漫画 |手绘",
     "Pa Drawing Caricature Extreme": "Pa 极端夸张漫画 |手绘",
@@ -684,7 +685,7 @@
     "Pa Drawing Technical": "Pa 工艺制图 |手绘",
     "Pa Drawing Zentangle": "Pa 禅绕画 |手绘",
     
-    "Pa 3D Render": "Pa 3D渲染",
+    "|pa 3D Render": "Pa 3D渲染",
     "Pa 3D Abstract": "Pa 抽象 |3D",
     "Pa 3D Abstract Fluid Dynamics": "Pa 抽象动态流体 |3D",
     "Pa 3D Abstract Soft Forms": "Pa 抽象软形态 |3D",
@@ -703,7 +704,7 @@
     "Pa 3D Sci Fi": "Pa 科幻 |3D",
     "Pa 3D Vehicle": "Pa 车辆 |3D",
     
-    "Pa Vector": "Pa 矢量",
+    "|pa Vector": "Pa 矢量",
     "Pa Vector Coloring Book Page": "Pa 着色本页面 |矢量",
     "Pa Vector Flat Art": "Pa 扁平化 |矢量",
     "Pa Vector Line Art": "Pa 线条 |矢量",
@@ -711,7 +712,7 @@
     "Pa Vector Silhouette": "Pa 剪影 |矢量",
     "Pa Vector Silhouette Cute": "Pa 可爱剪影 |矢量",
     
-    "Pa Design": "Pa 设计",
+    "|pa Design": "Pa 设计",
     "Pa Design Avatar": "Pa 头像设计",
     "Pa Design Banner": "Pa 横幅设计",
     "Pa Design Brochure": "Pa 宣传册设计",
@@ -730,7 +731,7 @@
     "Pa Design Poster": "Pa 海报设计",
     "Pa Design Website": "Pa 网站设计",
     
-    "Pa Fashion": "Pa 时尚",
+    "|pa Fashion": "Pa 时尚",
     "Pa Fashion Beachwear": "Pa 海滩装时尚",
     "Pa Fashion Bikini": "Pa 比基尼时尚",
     "Pa Fashion Boho": "Pa 波西米亚时尚",
@@ -752,7 +753,7 @@
     "Pa Fashion Vintage": "Pa 复古时尚",
     "Pa Fashion Winter": "Pa 冬季时尚",
     
-    "Pa Art Styles": "Pa 艺术风格",
+    "|pa Art Styles": "Pa 艺术风格",
     "Pa Art African Traditional": "Pa 非洲传统",
     "Pa Art Afrofuturism Art": "Pa 非洲未来主义",
     "Pa Art Ancient Egyptian Mural": "Pa 古埃及壁画",
@@ -801,7 +802,7 @@
     "Pa Art Vaporwave": "Pa 蒸汽波",
     "Pa Art Westernpunk": "Pa 西部朋克",
     
-    "Pa Crafts": "Pa 手工艺",
+    "|pa Crafts": "Pa 手工艺",
     "Pa Craft Ceramic": "Pa 陶瓷 |手工艺",
     "Pa Craft Ceramic Cibulak": "Pa 瓷碗 |手工艺",
     "Pa Craft Ceramic Glass": "Pa 陶瓷玻璃 |手工艺",
