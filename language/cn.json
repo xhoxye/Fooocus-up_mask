@@ -43,9 +43,8 @@
     "Inpaint or Outpaint": "图像修复或扩展",
 
     "Drag inpaint or outpaint image to here": "将要重绘的图片拖放至此处",
-    "Drag inpaint or outpaint image to here": "原图",
+    "Drag inpaint or outpaint image to here": "",
     "Mask Upload": "将制作好的蒙版拖放至此处（黑色区保留、白色区重绘）",
-    "Mask Upload": "蒙版",
     "Drag inpaint mask image to here": "将制作好的蒙版拖放至此处（黑色区保留、白色区重绘）",
     "Drag inpaint mask image to here": "蒙版",
 
@@ -94,7 +93,7 @@
     "beautiful eyes": "美丽的眼睛",
         
     "* Powered by Fooocus Inpaint Engine (beta)": "* 由“Fooocus 修复引擎”（测试版）提供支持",
-    "* Powered by Fooocus Inpaint Engine": "* 由“Fooocus 修复引擎”提供支持（也叫局部重绘、内部重绘与向外绘制）",
+    "* Powered by Fooocus Inpaint Engine": "* 由“Fooocus 修复引擎”提供支持（这个功能也叫局部重绘、内部重绘与向外绘制）",
 
     "* \"Inpaint or Outpaint\" is powered by the sampler \"DPMPP Fooocus Seamless 2M SDE Karras Inpaint Sampler\" (beta)": "* “图像修复与扩展”功能由采样器 \"DPMPP Fooocus Seamless 2M SDE Karras Inpaint Sampler\" (测试版)提供支持",
 
@@ -176,10 +175,13 @@
 
     "Positive ADM Guidance Scaler": "正向 ADM 引导系数",
     "The scaler multiplied to positive ADM (use 1.0 to disable). ": "引导系数 CFG 乘以正向 ADM（设为1.0表示禁用）",
+    "The scaler multiplied to positive ADM (use 1.0 to disable).": "引导系数 CFG 乘以正向 ADM（设为1.0表示禁用）",
     "Negative ADM Guidance Scaler": "反向 ADM 引导系数",
     "The scaler multiplied to negative ADM (use 1.0 to disable). ": "引导系数 CFG 乘以反向 ADM（设为1.0表示禁用）",
+    "The scaler multiplied to negative ADM (use 1.0 to disable).": "引导系数 CFG 乘以反向 ADM（设为1.0表示禁用）",
     "ADM Guidance End At Step": "ADM 引导结束的时机",
     "When to end the guidance from positive/negative ADM. ": "什么时候结束正/反向 ADM 引导。",
+    "When to end the guidance from positive/negative ADM.": "什么时候结束正/反向 ADM 引导。",
 
     "Refiner swap method": "精炼切换方法",
     "joint": "联合 joint",
@@ -235,7 +237,7 @@
     "Disable Preview": "禁用预览",
     "Disable preview during generation.": "在图片生成过程中不进行预览。",
     "Disable Intermediate Results": "禁止显示中间结果",
-    "Disable intermediate results during generation, only show final .": "生成过程中禁止显示中间结果，仅显示最终图集。",
+    "Disable intermediate results during generation, only show final gallery.": "生成过程中禁止显示中间结果，仅显示最终图集。",
     "Disable seed increment": "禁用种子自增量",
     "Disable automatic seed increment when image number is > 1.": "当图像数量大于1时，禁用自动种子增量。",
     "Read wildcards in order": "按顺序读取通配符",
