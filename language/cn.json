@@ -80,7 +80,7 @@
     "Bottom": "下",
 
     "Method": "绘制算法",
-    "Inpaint or Outpaint (default)": "内部重绘 或 外部扩充（默认算法）",
+    "Inpaint or Outpaint (default)": "内部重绘 或 向外绘制（默认算法）",
     "Improve Detail (face, hand, eyes, etc.)": "内部重绘-改善细节（脸、手、眼，等）",
     "Modify Content (add objects, change background, etc.)": "内部重绘-修改内容（添加物体、更换背景，等）",
     "Inpaint Additional Prompt": "内部重绘附加提示词",
