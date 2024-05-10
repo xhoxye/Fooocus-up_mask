@@ -1,7 +1,7 @@
 {
     "Preview": "预览",
     "Finished Images": "已完成的图像",
-    "Gallery": "Gallery",
+    "Gallery": "图集",
 
     "Type prompt here or paste parameters.": "在这里输入提示词或粘贴参数。",
     "Generate": "生成",
@@ -235,7 +235,7 @@
     "Disable Preview": "禁用预览",
     "Disable preview during generation.": "在图片生成过程中不进行预览。",
     "Disable Intermediate Results": "禁止显示中间结果",
-    "Disable intermediate results during generation, only show final gallery.": "生成过程中禁止显示中间结果，仅显示最终图集。",
+    "Disable intermediate results during generation, only show final .": "生成过程中禁止显示中间结果，仅显示最终图集。",
     "Disable seed increment": "禁用种子自增量",
     "Disable automatic seed increment when image number is > 1.": "当图像数量大于1时，禁用自动种子增量。",
     "Read wildcards in order": "按顺序读取通配符",
