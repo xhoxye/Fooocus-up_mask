@@ -43,8 +43,11 @@
     "Inpaint or Outpaint": "图像修复或扩展",
 
     "Drag inpaint or outpaint image to here": "将要重绘的图片拖放至此处",
+    "Drag inpaint or outpaint image to here": "原图",
     "Mask Upload": "将制作好的蒙版拖放至此处（黑色区保留、白色区重绘）",
+    "Mask Upload": "蒙版",
     "Drag inpaint mask image to here": "将制作好的蒙版拖放至此处（黑色区保留、白色区重绘）",
+    "Drag inpaint mask image to here": "蒙版",
 
     "Use brush": "使用画笔",
     "Undo": "撤销一步",
