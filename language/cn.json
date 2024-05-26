@@ -1,6 +1,4 @@
 {
-    "Image Size: ": "图片尺寸",
-    "Recommended Size: ": "推荐使用尺寸",
     "Preview": "预览",
     "Finished Images": "已完成的图像",
     "Gallery": "图集",
@@ -306,7 +304,7 @@
     "Image Size and Recommended Size": "图片尺寸及推荐使用尺寸",
     "Aspect Ratios": "尺寸与比例",
     "CLIP Skip": "CLIP Skip",
-    "Bypass CLIP layers to avoid overfitting (use 1 to disable).": "跳过CLIP层以避免过拟合（设为1表示禁用）。",
+    "Bypass CLIP layers to avoid overfitting (use 1 to not skip any layers, 2 is recommended).": "跳过CLIP层以避免过拟合（设为1不跳过任何层，2是推荐值）。",
     "Use black image if NSFW is detected.": "如果检测到 NSFW 不适宜内容，则显示黑色图片。",
     "Black Out NSFW": "屏蔽 NSFW 不适宜内容",
     "Inpaint brush color": "内部重绘画笔颜色",
