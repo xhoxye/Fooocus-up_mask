@@ -277,21 +277,15 @@ with shared.gradio_root:
                                                  choices=flags.Performance.list(),
                                                  value=modules.config.default_performance,
                                                  elem_classes=['performance_selection'])
-                with gr.Accordion(label='Aspect Ratios', open=False) as aspect_ratios_accordion:
+                with gr.Accordion(label='Aspect Ratios', open=False, elem_id='aspect_ratios_accordion') as aspect_ratios_accordion:
                     aspect_ratios_selection = gr.Radio(label='Aspect Ratios', show_label=False,
                                                        choices=modules.config.available_aspect_ratios_labels,
                                                        value=modules.config.default_aspect_ratio,
                                                        info='width × height',
                                                        elem_classes='aspect_ratios')
 
-                    def change_aspect_ratio(text):
-                        import re
-                        regex = re.compile('<.*?>')
-                        cleaned_text = re.sub(regex, '', text)
-                        return gr.update(label='Aspect Ratios ' + cleaned_text)
-
-                    aspect_ratios_selection.change(change_aspect_ratio, inputs=aspect_ratios_selection, outputs=aspect_ratios_accordion, queue=False, show_progress=False)
-                    shared.gradio_root.load(change_aspect_ratio, inputs=aspect_ratios_selection, outputs=aspect_ratios_accordion, queue=False, show_progress=False)
+                    aspect_ratios_selection.change(lambda x: None, inputs=aspect_ratios_selection, queue=False, show_progress=False, _js='(x)=>{refresh_aspect_ratios_label(x);}')
+                    shared.gradio_root.load(lambda x: None, inputs=aspect_ratios_selection, queue=False, show_progress=False, _js='(x)=>{refresh_aspect_ratios_label(x);}')
 
                 image_number = gr.Slider(label='Image Number', minimum=1, maximum=modules.config.default_max_image_number, step=1, value=modules.config.default_image_number)
 
@@ -427,9 +421,9 @@ with shared.gradio_root:
                                                  value=modules.config.default_cfg_tsnr,
                                                  info='Enabling Fooocus\'s implementation of CFG mimicking for TSNR '
                                                       '(effective when real CFG > mimicked CFG).')
-                        clip_skip = gr.Slider(label='CLIP Skip', minimum=1, maximum=10, step=1,
+                        clip_skip = gr.Slider(label='CLIP Skip', minimum=1, maximum=flags.clip_skip_max, step=1,
                                                  value=modules.config.default_clip_skip,
-                                                 info='Bypass CLIP layers to avoid overfitting (use 1 to disable).')
+                                                 info='Bypass CLIP layers to avoid overfitting (use 1 to not skip any layers, 2 is recommended).')
                         sampler_name = gr.Dropdown(label='Sampler', choices=flags.sampler_list,
                                                    value=modules.config.default_sampler)
                         scheduler_name = gr.Dropdown(label='Scheduler', choices=flags.scheduler_list,
