@@ -1,0 +1,74 @@
+{ 
+    "default_engine": {
+            "backend_engine": "Comfy",
+            "disvisible": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
+            "disinteractive": ["input_image_checkbox", "prompt_panel_checkbox", "advanced_checkbox"],
+            "available_aspect_ratios_selection": "Flux",
+            "scene_frontend": {
+                "version": "m1.1",
+                "theme": ["FluxKontext"],
+                "theme_title": "FluxKontext需要使用标准化指令进行图像编辑",
+                "disvisible": ["scene_canvas_image", "scene_additional_prompt","scene_additional_prompt_2"],
+                "task_method": {
+                    "FluxKontext": "kontext_gguf"
+                },
+                "scene_steps": {
+                    "FluxKontext": 20
+                },
+                "var_number_title": "比例遵从：[1]=左图 [2]=右图 [3]=拼合图像 [4]=自定义",
+                "var_number": {
+                    "FluxKontext":1
+                },
+                "var_number_max": 4,
+                "aspect_ratio" : ["4:5", "3:2", "16:9"]
+            }
+    },
+    "default_model": "flux1-dev-kontext_fp8_scaled.safetensors",
+    "default_refiner": "None",
+    "default_refiner_switch": 0.5,
+    "default_loras": [
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ],
+        [
+            "None",
+            1.0
+        ]
+    ],
+    "default_cfg_scale": 5.0,
+    "default_sample_sharpness": 2,
+    "default_sampler": "euler",
+    "default_scheduler": "simple",
+    "default_performance": "Speed",
+    "default_styles": [],
+    "default_aspect_ratio": "1024*1024",
+    "default_image_number": 1,
+    "default_overwrite_step":30,
+    "default_prompt": "",
+    "default_prompt_negative": "",
+    "checkpoint_downloads": {},
+    "embeddings_downloads": {},
+    "lora_downloads": {},
+    "vae_downloads": {},
+    "model_list": [
+        "checkpoints,flux1-dev-kontext_fp8_scaled.safetensors,11904640136,0,",
+        "clip,clip_l.safetensors,246144152,0,",
+        "clip,t5xxl_fp8_e4m3fn.safetensors,4893934904,0,",
+        "loras,flux1-turbo.safetensors,694082424,0,",
+        "vae,ae.safetensors,335304388,0,"
+        ]
+}
+
