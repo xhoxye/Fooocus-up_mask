@@ -114,7 +114,7 @@ class ComfyTask:
         self.steps = steps
 
 
-def get_comfy_task(user_did, task_class, task_name, ask_method, default_params, input_images, options={}):
+def get_comfy_task(user_did, task_class, task_name, task_method, default_params, input_images, options={}):
     global defaul_method_names, default_method_list
 
     #print(f'task_class:{task_class}, task_name:{task_name}, task_method:{task_method}')
