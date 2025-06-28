@@ -50,7 +50,6 @@ def check_base_environment():
         base_branch = 'dev'
     base_url = f"https://modelscope.cn/models/metercai/SimpleSDXL2/resolve/master/libs/{base_branch}"
     #base_url = f"https://hf-mirror.com/metercai/SimpleSDXL2/resolve/main/libs/{base_branch}"
-    #base_url = "https://huggingface.co/metercai/SimpleSDXL2/resolve/main/libs/{base_branch}"
     base_file = {
         "Windows": f'simpleai_base-{ver_required}-cp310-cp310-win_amd64.whl',
         "Linux": f'simpleai_base-{ver_required}-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl',
@@ -79,14 +78,14 @@ def check_base_environment():
                 run(f'"{python}" -m pip install {base_path}', f'Install {base_pkg} {ver_required}')
 
     if is_installed("sageattention"):
-        extra_pkgs = [('comfyui_frontend_package', 'comfyui_frontend_package==1.18.6'), ('comfyui_workflow_templates', 'comfyui_workflow_templates==0.1.3'),
-                ('socketio', 'python-socketio'), ('jsonpatch', 'jsonpatch')]
+        extra_pkgs = [('comfyui_embedded_docs', 'comfyui_embedded_docs==0.2.3'), ('socketio', 'python-socketio'), ('jsonpatch', 'jsonpatch'), 
+                ('alembic', 'alembic'), ('sqlalchemy', 'SQLAlchemy'), ('pydantic', 'pydantic~=2.0'), ('pydantic_settings', 'pydantic-settings~=2.0')]
         for (extra_pkg, extra_pkg_name) in extra_pkgs:
             if not is_installed(extra_pkg):
                 pkg_command = f'pip install {extra_pkg_name} -i {index_url}'
                 run(f'"{python}" -m {pkg_command}', f'Installing {extra_pkg_name}', f"Couldn't install {extra_pkg_name}", live=True)
 
-        update_pkgs = [('transformers', '4.47.1'), ('bitsandbytes', '0.45.5'), ('accelerate', '1.6.0'), ('av', '14.2.0')]
+        update_pkgs = [('comfyui_frontend_package', '1.23.4'), ('comfyui_workflow_templates', '0.1.30'), ('transformers', '4.47.1'), ('bitsandbytes', '0.45.5'), ('accelerate', '1.6.0'), ('av', '14.2.0'), ('yarl', '1.18.0')]
         for (update_pkg_name, update_pkg_version) in update_pkgs:
             if not is_installed_version(update_pkg_name, update_pkg_version):
                 pkg_command = f'pip install -U {update_pkg_name}=={update_pkg_version} -i {index_url}'
