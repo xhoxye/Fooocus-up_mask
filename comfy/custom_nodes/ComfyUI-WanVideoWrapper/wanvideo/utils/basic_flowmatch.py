@@ -42,10 +42,15 @@ class FlowMatchScheduler():
             self.linear_timesteps_weights = bsmntw_weighing
 
     def step(self, model_output, timestep, sample, to_final=False):
+        if timestep.ndim == 2:
+            timestep = timestep.flatten(0, 1)
         self.sigmas = self.sigmas.to(model_output.device)
         self.timesteps = self.timesteps.to(model_output.device)
-        timestep_id = torch.argmin(
-            (self.timesteps - timestep).abs(), dim=0)
+        if timestep.ndim == 0:
+            timestep_id = torch.argmin((self.timesteps - timestep).abs(), dim=0)
+        else:
+            timestep_id = torch.argmin((self.timesteps.unsqueeze(0) - timestep.unsqueeze(1)).abs(), dim=1)
+        
         sigma = self.sigmas[timestep_id].reshape(-1, 1, 1, 1)
         if to_final or (timestep_id + 1 >= len(self.timesteps)).any():
             sigma_ = 1 if (
@@ -59,11 +64,13 @@ class FlowMatchScheduler():
         """
         Diffusion forward corruption process.
         Input:
-            - clean_latent: the clean latent with shape [B, C, H, W]
-            - noise: the noise with shape [B, C, H, W]
-            - timestep: the timestep with shape [B]
-        Output: the corrupted latent with shape [B, C, H, W]
+            - clean_latent: the clean latent with shape [B*T, C, H, W]
+            - noise: the noise with shape [B*T, C, H, W]
+            - timestep: the timestep with shape [B*T]
+        Output: the corrupted latent with shape [B*T, C, H, W]
         """
+        if timestep.ndim == 2:
+            timestep = timestep.flatten(0, 1)
         self.sigmas = self.sigmas.to(noise.device)
         self.timesteps = self.timesteps.to(noise.device)
         timestep_id = torch.argmin(

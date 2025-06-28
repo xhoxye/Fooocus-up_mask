@@ -1,22 +1,34 @@
-import sys
 import copy
-import logging
-import threading
 import heapq
+import inspect
+import logging
+import sys
+import threading
 import time
 import traceback
 from enum import Enum
-import inspect
 from typing import List, Literal, NamedTuple, Optional
 
 import torch
-import nodes
 
 import comfy.model_management
-from comfy_execution.graph import get_input_info, ExecutionList, DynamicPrompt, ExecutionBlocker
-from comfy_execution.graph_utils import is_link, GraphBuilder
-from comfy_execution.caching import HierarchicalCache, LRUCache, DependencyAwareCache, CacheKeySetInputSignature, CacheKeySetID
+import nodes
+from comfy_execution.caching import (
+    CacheKeySetID,
+    CacheKeySetInputSignature,
+    DependencyAwareCache,
+    HierarchicalCache,
+    LRUCache,
+)
+from comfy_execution.graph import (
+    DynamicPrompt,
+    ExecutionBlocker,
+    ExecutionList,
+    get_input_info,
+)
+from comfy_execution.graph_utils import GraphBuilder, is_link
 from comfy_execution.validation import validate_node_input
+
 
 class ExecutionResult(Enum):
     SUCCESS = 0
@@ -146,6 +158,8 @@ def get_input_data(inputs, class_def, unique_id, outputs=None, dynprompt=None, e
                 input_data_all[x] = [unique_id]
             if h[x] == "AUTH_TOKEN_COMFY_ORG":
                 input_data_all[x] = [extra_data.get("auth_token_comfy_org", None)]
+            if h[x] == "API_KEY_COMFY_ORG":
+                input_data_all[x] = [extra_data.get("api_key_comfy_org", None)]
     return input_data_all, missing_keys
 
 map_node_over_list = None #Don't hook this please
@@ -415,17 +429,20 @@ def execute(server, dynprompt, caches, current_item, extra_data, executed, promp
 
         logging.error(f"!!! Exception during processing !!! {ex}")
         logging.error(traceback.format_exc())
+        tips = ""
+
+        if isinstance(ex, comfy.model_management.OOM_EXCEPTION):
+            tips = "This error means you ran out of memory on your GPU.\n\nTIPS: If the workflow worked before you might have accidentally set the batch_size to a large number."
+            logging.error("Got an OOM, unloading all loaded models.")
+            comfy.model_management.unload_all_models()
 
         error_details = {
             "node_id": real_node_id,
-            "exception_message": str(ex),
+            "exception_message": "{}\n{}".format(ex, tips),
             "exception_type": exception_type,
             "traceback": traceback.format_tb(tb),
             "current_inputs": input_data_formatted
         }
-        if isinstance(ex, comfy.model_management.OOM_EXCEPTION):
-            logging.error("Got an OOM, unloading all loaded models.")
-            comfy.model_management.unload_all_models()
 
         return (ExecutionResult.FAILURE, error_details, ex)
 
@@ -909,7 +926,6 @@ class PromptQueue:
         self.currently_running = {}
         self.history = {}
         self.flags = {}
-        server.prompt_queue = self
 
     def put(self, item):
         with self.mutex:
@@ -954,12 +970,20 @@ class PromptQueue:
             self.history[prompt[1]].update(history_result)
             self.server.queue_updated()
 
+    # Note: slow
     def get_current_queue(self):
         with self.mutex:
             out = []
             for x in self.currently_running.values():
                 out += [x]
             return (out, copy.deepcopy(self.queue))
+
+    # read-safe as long as queue items are immutable
+    def get_current_queue_volatile(self):
+        with self.mutex:
+            running = [x for x in self.currently_running.values()]
+            queued = copy.copy(self.queue)
+            return (running, queued)
 
     def get_tasks_remaining(self):
         with self.mutex:

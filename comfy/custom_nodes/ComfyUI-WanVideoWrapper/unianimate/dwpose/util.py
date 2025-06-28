@@ -108,52 +108,108 @@ def draw_bodypose(canvas, candidate, subset):
 
     return canvas
 
+def alpha_blend_color(color, alpha):
+    """blend color according to point conf
+    """
+    return [int(c * alpha) for c in color]
 
-def draw_body_and_foot(canvas, candidate, subset, stick_width=4, draw_body=True, draw_feet=True, body_keypoint_size=4):
+def draw_body_and_foot(canvas, candidate, subset, score, stick_width=4, draw_body=True, draw_feet=True, body_keypoint_size=4, draw_head=True):
     H, W, C = canvas.shape
     candidate = np.array(candidate)
     subset = np.array(subset)
+    limbSeq_and_colors = []
 
-    if draw_feet:
-        limbSeq = [[2, 3], [2, 6], [3, 4], [4, 5], [6, 7], [7, 8], [2, 9], [9, 10], \
-                [10, 11], [2, 12], [12, 13], [13, 14], [2, 1], [1, 15], [15, 17], \
-                [1, 16], [16, 18], [14,19], [11, 20]]
-    else:
-        limbSeq = [[2, 3], [2, 6], [3, 4], [4, 5], [6, 7], [7, 8], [2, 9], [9, 10], \
-                [10, 11], [2, 12], [12, 13], [13, 14], [2, 1], [1, 15], [15, 17], \
-                [1, 16], [16, 18]]
-        
-    colors = [[255, 0, 0], [255, 85, 0], [255, 170, 0], [255, 255, 0], [170, 255, 0], [85, 255, 0], [0, 255, 0], \
-              [0, 255, 85], [0, 255, 170], [0, 255, 255], [0, 170, 255], [0, 85, 255], [0, 0, 255], [85, 0, 255], \
-              [170, 0, 255], [255, 0, 255], [255, 0, 170], [255, 0, 85], [170, 255, 255], [255, 255, 0]]
-   
     if draw_body:
-        for i in range(len(limbSeq)):
-            for n in range(len(subset)):
-                index = subset[n][np.array(limbSeq[i]) - 1]
-                if -1 in index:
-                    continue
-                Y = candidate[index.astype(int), 0] * float(W)
-                X = candidate[index.astype(int), 1] * float(H)
-                mX = np.mean(X)
-                mY = np.mean(Y)
-                length = ((X[0] - X[1]) ** 2 + (Y[0] - Y[1]) ** 2) ** 0.5
-                angle = math.degrees(math.atan2(X[0] - X[1], Y[0] - Y[1]))
-                polygon = cv2.ellipse2Poly((int(mY), int(mX)), (int(length / 2), stick_width), int(angle), 0, 360, 1)
-                cv2.fillConvexPoly(canvas, polygon, colors[i])
+        limbSeq_and_colors = [
+            ([2, 3], [255, 0, 0]),   # Neck to Right Shoulder
+            ([2, 6], [255, 85, 0]),  # Neck to Left Shoulder
+            ([3, 4], [255, 170, 0]), # Right Shoulder to Right Elbow
+            ([4, 5], [255, 255, 0]), # Right Elbow to Right Wrist
+            ([6, 7], [170, 255, 0]), # Left Shoulder to Left Elbow
+            ([7, 8], [85, 255, 0]),  # Left Elbow to Left Wrist
+            ([2, 9], [0, 255, 0]),   # Neck to Right Hip
+            ([9, 10], [0, 255, 85]), # Right Hip to Right Knee
+            ([10, 11], [0, 255, 170]), # Right Knee to Right Ankle
+            ([2, 12], [0, 255, 255]), # Neck to Left Hip
+            ([12, 13], [0, 170, 255]), # Left Hip to Left Knee
+            ([13, 14], [0, 85, 255]), # Left Knee to Left Ankle
+        ]
+    else:
+        limbSeq_and_colors = [
+            ([2, 3], [0, 0, 0]),   # Neck to Right Shoulder
+            ([2, 6], [0, 0, 0]),  # Neck to Left Shoulder
+            ([3, 4], [0, 0, 0]), # Right Shoulder to Right Elbow
+            ([4, 5], [0, 0, 0]), # Right Elbow to Right Wrist
+            ([6, 7], [0, 0, 0]), # Left Shoulder to Left Elbow
+            ([7, 8], [0, 0, 0]),  # Left Elbow to Left Wrist
+            ([2, 9], [0, 0, 0]),   # Neck to Right Hip
+            ([9, 10], [0, 0, 0]), # Right Hip to Right Knee
+            ([10, 11], [0, 0, 0]), # Right Knee to Right Ankle
+            ([2, 12], [0, 0, 0]), # Neck to Left Hip
+            ([12, 13], [0, 0, 0]), # Left Hip to Left Knee
+            ([13, 14], [0, 0, 0]), # Left Knee to Left Ankle
+        ]
+
+    # Conditionally add head-related elements
+    if draw_head:
+        head_elements = [
+            ([2, 1], [0, 0, 255]), # Neck to Nose
+            ([1, 15], [0, 0, 255]), # Nose to Right Eye
+            ([15, 17], [85, 0, 255]), # Right Eye to Right Ear
+            ([1, 16], [170, 0, 255]), # Nose to Left Eye
+            ([16, 18], [255, 0, 255]), # Left Eye to Left Ear
+            ([3, 17], [255, 0, 170]), # Right Shoulder to Right Ear
+            ([6, 18], [255, 0, 85])   # Left Shoulder to Left Ear
+        ]
+    else:
+        head_elements = [
+            ([2, 1], [0, 0, 0]),   # Neck to Nose
+            ([1, 15], [0, 0, 0]), # Nose to Right Eye
+            ([15, 17], [0, 0, 0]), # Right Eye to Right Ear
+            ([1, 16], [0, 0, 0]), # Nose to Left Eye
+            ([16, 18], [0, 0, 0]), # Left Eye to Left Ear
+            ([3, 17], [0, 0, 0]), # Right Shoulder to Right Ear
+            ([6, 18], [0, 0, 0])   # Left Shoulder to Left Ear
+        ]
+    if draw_feet:
+        limbSeq_and_colors += [
+            ([14, 19], [170, 255, 255]), # Left Ankle to Right Foot
+            ([11, 20], [255, 255, 0]), # Right Ankle to Left Foot
+        ]
+
+    # Append head elements based on the condition
+    limbSeq_and_colors += head_elements
+
+    for limb_info in limbSeq_and_colors[:17]:
+        limbSeq, color = limb_info
+        for n in range(len(subset)):
+            index = subset[n][np.array(limbSeq) - 1]
+            conf = score[n][np.array(limbSeq) - 1]
+            if conf[0] < 0.3 or conf[1] < 0.3:
+                continue
+            Y = candidate[index.astype(int), 0] * float(W)
+            X = candidate[index.astype(int), 1] * float(H)
+            mX = np.mean(X)
+            mY = np.mean(Y)
+            length = np.sqrt((X[0] - X[1]) ** 2 + (Y[0] - Y[1]) ** 2)
+            angle = math.degrees(math.atan2(X[0] - X[1], Y[0] - Y[1]))
+            polygon = cv2.ellipse2Poly((int(mY), int(mX)), (int(length / 2), stick_width), int(angle), 0, 360, 1)
+            cv2.fillConvexPoly(canvas, polygon, alpha_blend_color(color, conf[0] * conf[1]))
 
     canvas = (canvas * 0.6).astype(np.uint8)
 
-    if body_keypoint_size > 0:
-        for i in range(len(limbSeq)+1):
+    for limb_info in limbSeq_and_colors[:18]:
+        limbSeq, color = limb_info
+        for i in limbSeq:
             for n in range(len(subset)):
-                index = int(subset[n][i])
+                index = int(subset[n][i - 1])
                 if index == -1:
                     continue
                 x, y = candidate[index][0:2]
+                conf = score[n][i - 1]
                 x = int(x * W)
                 y = int(y * H)
-                cv2.circle(canvas, (int(x), int(y)), body_keypoint_size, colors[i], thickness=-1)
+                cv2.circle(canvas, (x, y), 4, alpha_blend_color(color, conf), thickness=-1)
 
     return canvas
 

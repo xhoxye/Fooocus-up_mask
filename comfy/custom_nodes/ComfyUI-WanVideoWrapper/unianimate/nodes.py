@@ -1,3 +1,4 @@
+
 import torch.nn as nn
 from ..utils import log
 import comfy.model_management as mm
@@ -175,23 +176,24 @@ class DWposeDetector:
             hands = np.vstack([hands, candidate[:,113:]])
             
             # bodies = dict(candidate=body, subset=score)
-            bodies = dict(candidate=bodyfoot, subset=bodyfoot_score)
+            bodies = dict(candidate=bodyfoot, subset=bodyfoot_score, score=bodyfoot_score)
             pose = dict(bodies=bodies, hands=hands, faces=faces)
 
             # return draw_pose(pose, H, W)
             return pose
 
 def draw_pose(pose, H, W, stick_width=4,draw_body=True, draw_hands=True, draw_feet=True, 
-              body_keypoint_size=4, hand_keypoint_size=4):
+              body_keypoint_size=4, hand_keypoint_size=4, draw_head=True):
     from .dwpose.util import draw_body_and_foot, draw_handpose, draw_facepose
     bodies = pose['bodies']
     faces = pose['faces']
     hands = pose['hands']
     candidate = bodies['candidate']
     subset = bodies['subset']
+    score=bodies['score']
 
     canvas = np.zeros(shape=(H, W, 3), dtype=np.uint8)
-    canvas = draw_body_and_foot(canvas, candidate, subset, draw_body=draw_body, stick_width=stick_width, draw_feet=draw_feet, body_keypoint_size=body_keypoint_size)
+    canvas = draw_body_and_foot(canvas, candidate, subset, score, draw_body=draw_body, stick_width=stick_width, draw_feet=draw_feet, draw_head=draw_head, body_keypoint_size=body_keypoint_size)
     canvas = draw_handpose(canvas, hands, draw_hands=draw_hands, hand_keypoint_size=hand_keypoint_size)
     canvas_without_face = copy.deepcopy(canvas)
     canvas = draw_facepose(canvas, faces)
@@ -201,7 +203,7 @@ def draw_pose(pose, H, W, stick_width=4,draw_body=True, draw_hands=True, draw_fe
 
 def pose_extract(pose_images, ref_image, dwpose_model, height, width, score_threshold, stick_width,
                  draw_body=True, draw_hands=True, hand_keypoint_size=4, draw_feet=True,
-                 body_keypoint_size=4, handle_not_detected="repeat"):
+                 body_keypoint_size=4, handle_not_detected="repeat", draw_head=True):
     
     results_vis = []
     comfy_pbar = ProgressBar(len(pose_images))
@@ -679,13 +681,13 @@ def pose_extract(pose_images, ref_image, dwpose_model, height, width, score_thre
     
     dwpose_woface_list = []
     for i in range(len(results_vis)):
-        try:
-            dwpose_woface, dwpose_wface = draw_pose(results_vis[i], H=height, W=width, stick_width=stick_width,
+        #try:
+        dwpose_woface, dwpose_wface = draw_pose(results_vis[i], H=height, W=width, stick_width=stick_width,
                                                     draw_body=draw_body, draw_hands=draw_hands, hand_keypoint_size=hand_keypoint_size,
-                                                    draw_feet=draw_feet, body_keypoint_size=body_keypoint_size)
-            result = torch.from_numpy(dwpose_woface)
-        except:
-            result = torch.zeros((height, width, 3), dtype=torch.uint8)
+                                                    draw_feet=draw_feet, body_keypoint_size=body_keypoint_size, draw_head=draw_head)
+        result = torch.from_numpy(dwpose_woface)
+        #except:
+        #    result = torch.zeros((height, width, 3), dtype=torch.uint8)
         dwpose_woface_list.append(result)
     dwpose_woface_tensor = torch.stack(dwpose_woface_list, dim=0)
 
@@ -693,7 +695,7 @@ def pose_extract(pose_images, ref_image, dwpose_model, height, width, score_thre
     if ref_image is not None:
         dwpose_woface_ref, dwpose_wface_ref = draw_pose(pose_ref, H=height, W=width, stick_width=stick_width,
                                                         draw_body=draw_body, draw_hands=draw_hands, hand_keypoint_size=hand_keypoint_size,
-                                                        draw_feet=draw_feet, body_keypoint_size=body_keypoint_size)
+                                                        draw_feet=draw_feet, body_keypoint_size=body_keypoint_size, draw_head=draw_head)
         dwpose_woface_ref_tensor = torch.from_numpy(dwpose_woface_ref)
 
     return dwpose_woface_tensor, dwpose_woface_ref_tensor
@@ -712,6 +714,7 @@ class WanVideoUniAnimateDWPoseDetector:
                 "hand_keypoint_size": ("INT", {"default": 4, "min": 0, "max": 100, "step": 1, "tooltip": "Hand keypoint size"}),
                 "colorspace": (["RGB", "BGR"], {"tooltip": "Color space for the output image"}),
                 "handle_not_detected": (["empty", "repeat"], {"default": "empty", "tooltip": "How to handle undetected poses, empty inserts black and repeat inserts previous detection"}),
+                "draw_head": ("BOOLEAN", {"default": True, "tooltip": "Draw head keypoints"}),
             },
             "optional": {
                 "reference_pose_image": ("IMAGE", {"tooltip": "Reference pose image"}),
@@ -724,7 +727,7 @@ class WanVideoUniAnimateDWPoseDetector:
     CATEGORY = "WanVideoWrapper"
 
     def process(self, pose_images, score_threshold, stick_width, reference_pose_image=None, draw_body=True, body_keypoint_size=4, 
-                draw_feet=True, draw_hands=True, hand_keypoint_size=4, colorspace="RGB", handle_not_detected="empty"):
+                draw_feet=True, draw_hands=True, hand_keypoint_size=4, colorspace="RGB", handle_not_detected="empty", draw_head=True):
 
         device = mm.get_torch_device()
         
@@ -770,7 +773,7 @@ class WanVideoUniAnimateDWPoseDetector:
 
         poses, reference_pose = pose_extract(pose_np, ref_np, self.dwpose_detector, height, width, score_threshold, stick_width=stick_width,
                                              draw_body=draw_body, body_keypoint_size=body_keypoint_size, draw_feet=draw_feet, 
-                                             draw_hands=draw_hands, hand_keypoint_size=hand_keypoint_size, handle_not_detected=handle_not_detected)
+                                             draw_hands=draw_hands, hand_keypoint_size=hand_keypoint_size, handle_not_detected=handle_not_detected, draw_head=draw_head)
         poses = poses / 255.0
         if reference_pose_image is not None:
             reference_pose = reference_pose.unsqueeze(0) / 255.0

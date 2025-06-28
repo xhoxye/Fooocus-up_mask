@@ -121,7 +121,7 @@ class WanVideoDiffusionForcingSampler:
                 "samples": ("LATENT", {"tooltip": "init Latents to use for video2video process"} ),
                 "prefix_samples": ("LATENT", {"tooltip": "prefix latents"} ),
                 "denoise_strength": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.01}),
-                "teacache_args": ("TEACACHEARGS", ),
+                "cache_args": ("CACHEARGS", ),
                 "slg_args": ("SLGARGS", ),
                 "rope_function": (["default", "comfy"], {"default": "comfy", "tooltip": "Comfy's RoPE implementation doesn't use complex numbers and can thus be compiled, that should be a lot faster when using torch.compile"}),
                 "experimental_args": ("EXPERIMENTALARGS", ),
@@ -135,7 +135,7 @@ class WanVideoDiffusionForcingSampler:
     CATEGORY = "WanVideoWrapper"
 
     def process(self, model, text_embeds, image_embeds, shift, fps, steps, addnoise_condition, cfg, seed, scheduler, 
-        force_offload=True, samples=None, prefix_samples=None, denoise_strength=1.0, slg_args=None, rope_function="default", teacache_args=None, 
+        force_offload=True, samples=None, prefix_samples=None, denoise_strength=1.0, slg_args=None, rope_function="default", cache_args=None, teacache_args=None, 
         experimental_args=None, unianimate_poses=None):
         #assert not (context_options and teacache_args), "Context options cannot currently be used together with teacache."
         patcher = model
@@ -180,6 +180,8 @@ class WanVideoDiffusionForcingSampler:
         has_ref = image_embeds.get("has_ref", False)
         vace_context = image_embeds.get("vace_context", None)
         vace_scale = image_embeds.get("vace_scale", None)
+        if not isinstance(vace_scale, list):
+            vace_scale = [vace_scale] * (steps+1)
         vace_start_percent = image_embeds.get("vace_start_percent", 0.0)
         vace_end_percent = image_embeds.get("vace_end_percent", 1.0)
         vace_seqlen = image_embeds.get("vace_seq_len", None)
@@ -198,9 +200,12 @@ class WanVideoDiffusionForcingSampler:
                 for i in range(len(vace_additional_embeds)):
                     if vace_additional_embeds[i].get("has_ref", False):
                         has_ref = True
+                    vace_scale = vace_additional_embeds[i]["vace_scale"]
+                    if not isinstance(vace_scale, list):
+                        vace_scale = [vace_scale] * (steps+1)
                     vace_data.append({
                         "context": vace_additional_embeds[i]["vace_context"],
-                        "scale": vace_additional_embeds[i]["vace_scale"],
+                        "scale": vace_scale,
                         "start": vace_additional_embeds[i]["vace_start_percent"],
                         "end": vace_additional_embeds[i]["vace_end_percent"],
                         "seq_len": vace_additional_embeds[i]["vace_seq_len"]
@@ -368,19 +373,29 @@ class WanVideoDiffusionForcingSampler:
         elif model["manual_offloading"]:
             transformer.to(device)
 
-        # Initialize TeaCache if enabled
-        if teacache_args is not None:
-            transformer.enable_teacache = True
-            transformer.rel_l1_thresh = teacache_args["rel_l1_thresh"]
-            transformer.teacache_start_step = teacache_args["start_step"]
-            transformer.teacache_cache_device = teacache_args["cache_device"]
-            log.info(f"TeaCache: Using cache device: {transformer.teacache_state.cache_device}")
-            transformer.teacache_end_step = len(init_timesteps)-1 if teacache_args["end_step"] == -1 else teacache_args["end_step"]
-            transformer.teacache_use_coefficients = teacache_args["use_coefficients"]
-            transformer.teacache_mode = teacache_args["mode"]
-            transformer.teacache_state.clear_all()
-        else:
-            transformer.enable_teacache = False
+        # Initialize Cache if enabled
+        transformer.enable_teacache = transformer.enable_magcache = False
+        if teacache_args is not None: #for backward compatibility on old workflows
+            cache_args = teacache_args
+        if cache_args is not None:            
+            transformer.cache_device = cache_args["cache_device"]
+            if cache_args["cache_type"] == "TeaCache":
+                log.info(f"TeaCache: Using cache device: {transformer.cache_device}")
+                transformer.teacache_state.clear_all()
+                transformer.enable_teacache = True
+                transformer.rel_l1_thresh = cache_args["rel_l1_thresh"]
+                transformer.teacache_start_step = cache_args["start_step"]
+                transformer.teacache_end_step = len(init_timesteps)-1 if cache_args["end_step"] == -1 else cache_args["end_step"]
+                transformer.teacache_use_coefficients = cache_args["use_coefficients"]
+                transformer.teacache_mode = cache_args["mode"]
+            elif cache_args["cache_type"] == "MagCache":
+                log.info(f"MagCache: Using cache device: {transformer.cache_device}")
+                transformer.magcache_state.clear_all()
+                transformer.enable_magcache = True
+                transformer.magcache_start_step = cache_args["start_step"]
+                transformer.magcache_end_step = len(init_timesteps)-1 if cache_args["end_step"] == -1 else cache_args["end_step"]
+                transformer.magcache_thresh = cache_args["magcache_thresh"]
+                transformer.magcache_K = cache_args["magcache_K"]
 
         if slg_args is not None:
             transformer.slg_blocks = slg_args["blocks"]
@@ -435,6 +450,8 @@ class WanVideoDiffusionForcingSampler:
                     'vace_data': vace_data,
                     'unianim_data': unianim_data,
                     'fps_embeds': fps_embeds,
+                    "nag_params": text_embeds.get("nag_params", {}),
+                    "nag_context": text_embeds.get("nag_prompt_embeds", None),
                 }
 
                 batch_size = 1

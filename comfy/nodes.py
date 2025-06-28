@@ -247,6 +247,9 @@ class ConditioningZeroOut:
             pooled_output = d.get("pooled_output", None)
             if pooled_output is not None:
                 d["pooled_output"] = torch.zeros_like(pooled_output)
+            conditioning_lyrics = d.get("conditioning_lyrics", None)
+            if conditioning_lyrics is not None:
+                d["conditioning_lyrics"] = torch.zeros_like(conditioning_lyrics)
             n = [torch.zeros_like(t[0]), d]
             c.append(n)
         return (c, )
@@ -917,7 +920,7 @@ class CLIPLoader:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": { "clip_name": (folder_paths.get_filename_list("text_encoders"), ),
-                              "type": (["stable_diffusion", "stable_cascade", "sd3", "stable_audio", "mochi", "ltxv", "pixart", "cosmos", "lumina2", "wan", "hidream", "chroma"], ),
+                              "type": (["stable_diffusion", "stable_cascade", "sd3", "stable_audio", "mochi", "ltxv", "pixart", "cosmos", "lumina2", "wan", "hidream", "chroma", "ace", "omnigen2"], ),
                               },
                 "optional": {
                               "device": (["default", "cpu"], {"advanced": True}),
@@ -927,7 +930,7 @@ class CLIPLoader:
 
     CATEGORY = "advanced/loaders"
 
-    DESCRIPTION = "[Recipes]\n\nstable_diffusion: clip-l\nstable_cascade: clip-g\nsd3: t5 xxl/ clip-g / clip-l\nstable_audio: t5 base\nmochi: t5 xxl\ncosmos: old t5 xxl\nlumina2: gemma 2 2B\nwan: umt5 xxl\n hidream: llama-3.1 (Recommend) or t5"
+    DESCRIPTION = "[Recipes]\n\nstable_diffusion: clip-l\nstable_cascade: clip-g\nsd3: t5 xxl/ clip-g / clip-l\nstable_audio: t5 base\nmochi: t5 xxl\ncosmos: old t5 xxl\nlumina2: gemma 2 2B\nwan: umt5 xxl\n hidream: llama-3.1 (Recommend) or t5\nomnigen2: qwen vl 2.5 3B"
 
     def load_clip(self, clip_name, type="stable_diffusion", device="default"):
         clip_type = getattr(comfy.sd.CLIPType, type.upper(), comfy.sd.CLIPType.STABLE_DIFFUSION)
@@ -1100,16 +1103,7 @@ class unCLIPConditioning:
         if strength == 0:
             return (conditioning, )
 
-        c = []
-        for t in conditioning:
-            o = t[1].copy()
-            x = {"clip_vision_output": clip_vision_output, "strength": strength, "noise_augmentation": noise_augmentation}
-            if "unclip_conditioning" in o:
-                o["unclip_conditioning"] = o["unclip_conditioning"][:] + [x]
-            else:
-                o["unclip_conditioning"] = [x]
-            n = [t[0], o]
-            c.append(n)
+        c = node_helpers.conditioning_set_values(conditioning, {"unclip_conditioning": [{"clip_vision_output": clip_vision_output, "strength": strength, "noise_augmentation": noise_augmentation}]}, append=True)
         return (c, )
 
 class GLIGENLoader:
@@ -1937,7 +1931,7 @@ class ImagePadForOutpaint:
 
         mask[top:top + d2, left:left + d3] = t
 
-        return (new_image, mask)
+        return (new_image, mask.unsqueeze(0))
 
 
 NODE_CLASS_MAPPINGS = {
@@ -2067,11 +2061,13 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "ImagePadForOutpaint": "Pad Image for Outpainting",
     "ImageBatch": "Batch Images",
     "ImageCrop": "Image Crop",
+    "ImageStitch": "Image Stitch",
     "ImageBlend": "Image Blend",
     "ImageBlur": "Image Blur",
     "ImageQuantize": "Image Quantize",
     "ImageSharpen": "Image Sharpen",
     "ImageScaleToTotalPixels": "Scale Image to Total Pixels",
+    "GetImageSize": "Get Image Size",
     # _for_testing
     "VAEDecodeTiled": "VAE Decode (Tiled)",
     "VAEEncodeTiled": "VAE Encode (Tiled)",
@@ -2128,6 +2124,25 @@ def load_custom_node(module_path: str, ignore=set(), module_parent="custom_nodes
         module_spec.loader.exec_module(module)
 
         LOADED_MODULE_DIRS[module_name] = os.path.abspath(module_dir)
+
+        try:
+            from comfy_config import config_parser
+
+            project_config = config_parser.extract_node_configuration(module_path)
+
+            web_dir_name = project_config.tool_comfy.web
+
+            if web_dir_name:
+                web_dir_path = os.path.join(module_path, web_dir_name)
+
+                if os.path.isdir(web_dir_path):
+                    project_name = project_config.project.name
+
+                    EXTENSION_WEB_DIRS[project_name] = web_dir_path
+
+                    logging.info("Automatically register web folder {} for {}".format(web_dir_name, project_name))
+        except Exception as e:
+            logging.warning(f"Unable to parse pyproject.toml due to lack dependency pydantic-settings, please run 'pip install -r requirements.txt': {e}")
 
         if hasattr(module, "WEB_DIRECTORY") and getattr(module, "WEB_DIRECTORY") is not None:
             web_dir = os.path.abspath(os.path.join(module_dir, getattr(module, "WEB_DIRECTORY")))
@@ -2216,6 +2231,7 @@ def init_builtin_extra_nodes():
         "nodes_model_downscale.py",
         "nodes_images.py",
         "nodes_video_model.py",
+        "nodes_train.py",
         "nodes_sag.py",
         "nodes_perpneg.py",
         "nodes_stable3d.py",
@@ -2258,12 +2274,12 @@ def init_builtin_extra_nodes():
         "nodes_optimalsteps.py",
         "nodes_hidream.py",
         "nodes_fresca.py",
+        "nodes_apg.py",
         "nodes_preview_any.py",
-    ]
-
-    api_nodes_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "comfy_api_nodes")
-    api_nodes_files = [
-        "nodes_api.py",
+        "nodes_ace.py",
+        "nodes_string.py",
+        "nodes_camera_trajectory.py",
+        "nodes_edit_model.py",
     ]
 
     import_failed = []
@@ -2271,6 +2287,33 @@ def init_builtin_extra_nodes():
         if not load_custom_node(os.path.join(extras_dir, node_file), module_parent="comfy_extras"):
             import_failed.append(node_file)
 
+    return import_failed
+
+
+def init_builtin_api_nodes():
+    api_nodes_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "comfy_api_nodes")
+    api_nodes_files = [
+        "nodes_ideogram.py",
+        "nodes_openai.py",
+        "nodes_minimax.py",
+        "nodes_veo2.py",
+        "nodes_kling.py",
+        "nodes_bfl.py",
+        "nodes_luma.py",
+        "nodes_recraft.py",
+        "nodes_pixverse.py",
+        "nodes_stability.py",
+        "nodes_pika.py",
+        "nodes_runway.py",
+        "nodes_tripo.py",
+        "nodes_rodin.py",
+        "nodes_gemini.py",
+    ]
+
+    if not load_custom_node(os.path.join(api_nodes_dir, "canary.py"), module_parent="comfy_api_nodes"):
+        return api_nodes_files
+
+    import_failed = []
     for node_file in api_nodes_files:
         if not load_custom_node(os.path.join(api_nodes_dir, node_file), module_parent="comfy_api_nodes"):
             import_failed.append(node_file)
@@ -2278,13 +2321,28 @@ def init_builtin_extra_nodes():
     return import_failed
 
 
-def init_extra_nodes(init_custom_nodes=True):
+def init_extra_nodes(init_custom_nodes=True, init_api_nodes=True):
     import_failed = init_builtin_extra_nodes()
+
+    import_failed_api = []
+    if init_api_nodes:
+        import_failed_api = init_builtin_api_nodes()
 
     if init_custom_nodes:
         init_external_custom_nodes()
     else:
         logging.info("Skipping loading of custom nodes")
+
+    if len(import_failed_api) > 0:
+        logging.warning("WARNING: some comfy_api_nodes/ nodes did not import correctly. This may be because they are missing some dependencies.\n")
+        for node in import_failed_api:
+            logging.warning("IMPORT FAILED: {}".format(node))
+        logging.warning("\nThis issue might be caused by new missing dependencies added the last time you updated ComfyUI.")
+        if args.windows_standalone_build:
+            logging.warning("Please run the update script: update/update_comfyui.bat")
+        else:
+            logging.warning("Please do a: pip install -r requirements.txt")
+        logging.warning("")
 
     if len(import_failed) > 0:
         logging.warning("WARNING: some comfy_extras/ nodes did not import correctly. This may be because they are missing some dependencies.\n")
