@@ -43,7 +43,7 @@ def check_base_environment():
     print(f'{now_string()} {version.get_branch()} version: {version.get_simplesdxl_ver()}')
 
     base_pkg = "simpleai_base"
-    ver_required = "0.3.23"
+    ver_required = "0.3.24"
     REINSTALL_BASE = True #if '_dev' not in version.get_branch() else True
     base_branch = "release"
     if '--dev' in (sys.argv):
@@ -119,7 +119,7 @@ def check_base_environment():
 
     from simpleai_base import simpleai_base
     logger.info("Checking ...")
-    token = simpleai_base.init_local('SimpleSDXL')
+    token = simpleai_base.init_local()
     sysinfo = json.loads(token.get_sysinfo().to_json())
     sysinfo.update(dict(did=token.get_sys_did()))
     logger.info(f'GPU: {sysinfo["gpu_name"]}, RAM: {sysinfo["ram_total"]}MB, SWAP: {sysinfo["ram_swap"]}MB, VRAM: {sysinfo["gpu_memory"]}MB, DiskFree: {sysinfo["disk_free"]}MB, CUDA: {sysinfo["cuda"]}, HOST: {sysinfo["host_type"]}')

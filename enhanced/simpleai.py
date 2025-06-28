@@ -134,7 +134,7 @@ def toggle_p2p(x, state):
             shared.upstream_did = shared.upstream_did.split(':')[0]
     ads.set_admin_default_value('p2p_active_checkbox', x, state)
 
-    return gr.update(interactive=x, value='Disable'), gr.update(interactive=x)
+    return gr.update(info=shared.token.get_p2p_address()), gr.update(interactive=x, value='Disable'), gr.update(interactive=x)
 
 def ping_test(target, state):
     if ads.get_admin_default('p2p_active_checkbox'):

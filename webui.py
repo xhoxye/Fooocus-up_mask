@@ -1326,7 +1326,7 @@ with shared.gradio_root:
 
                     with gr.Tab(label='P2P Network'):
                         with gr.Group() as p2p_panel:
-                            p2p_active_checkbox = gr.Checkbox(label='Enable P2P network', value=ads.get_admin_default('p2p_active_checkbox'))
+                            p2p_active_checkbox = gr.Checkbox(label='Enable P2P network', value=ads.get_admin_default('p2p_active_checkbox'), info=shared.token.get_p2p_address())
                             p2p_remote_process = gr.Radio(label='Remote process', choices=['Disable', 'out', 'in'], value=ads.get_admin_default('p2p_remote_process'), interactive=ads.get_admin_default('p2p_active_checkbox'))
                             with gr.Group(visible=True if ads.get_admin_default('p2p_remote_process')=='out' else False) as p2p_out:
                                 p2p_out_did_title = gr.Markdown(value="Remote node:", elem_classes=["p2p_title"])
@@ -1769,7 +1769,7 @@ with shared.gradio_root:
         .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}')
     binding_id_button.click(simpleai.toggle_identity_dialog, inputs=state_topbar, outputs=[identity_dialog, current_id_info, current_upstream_status, identity_export_btn] + identity_ctrls + identity_input, show_progress=False)
 
-    p2p_active_checkbox.change(simpleai.toggle_p2p, inputs=[p2p_active_checkbox, state_topbar], outputs=[p2p_remote_process, p2p_ping_btn]) \
+    p2p_active_checkbox.change(simpleai.toggle_p2p, inputs=[p2p_active_checkbox, state_topbar], outputs=[p2p_active_checkbox, p2p_remote_process, p2p_ping_btn]) \
                         .then(topbar.update_after_identity, inputs=state_topbar, outputs=nav_bars + after_identity, show_progress=False) \
                         .then(fn=lambda x: None, inputs=system_params, _js='(x)=>{refresh_topbar_status_js(x);}')
 

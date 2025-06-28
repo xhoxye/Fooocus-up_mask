@@ -158,15 +158,12 @@ class AsyncTask:
         self.task_class = self.params_backend.pop('backend_engine', 'Fooocus')
         self.task_name = self.params_backend.pop('preset', 'default')
         self.task_method = self.params_backend.pop('task_method', 'text2image')
-        self.preset = self.task_name
         if 'layer' in self.current_tab and self.task_class == 'Fooocus' and self.input_image_checkbox:
             self.task_class = 'Comfy'
             self.task_name = 'default'
             self.task_method = self.layer_method
         self.task_class_full = task_class_mapping[self.task_class]
 
-        if self.task_class in ['Kolors', 'Flux', 'HyDiT', 'SD3x'] and self.task_name not in ['Kolors', 'Flux', 'HyDiT', 'SD3x']:
-            self.task_name = self.task_class
         if len(self.loras) > 0:
             for i, (lora_name, lora_strength) in enumerate(self.loras):
                 self.params_backend.update({
@@ -425,7 +422,7 @@ def worker():
             default_params.update(params_backend)
             try:
                 user_cert = shared.token.get_register_cert(async_task.user_did)
-                comfy_task = get_comfy_task(async_task.user_did, async_task.task_name, async_task.task_method, 
+                comfy_task = get_comfy_task(async_task.user_did, async_task.task_class, async_task.task_name, async_task.task_method, 
                         default_params, input_images, options)
                 if async_task.disable_preview:
                     callback = None
@@ -1352,7 +1349,7 @@ def worker():
                     break
                 time.sleep(2)
             return
-        if is_models_file_absent(async_task.preset):
+        if is_models_file_absent(async_task.task_name):
             stop_processing(async_task, 0, "Model absent")
             return
         ldm_patched.modules.model_management.print_memory_info("begin at handler")
@@ -2055,11 +2052,25 @@ def worker():
         stop_processing(async_task, processing_start_time)
         return
 
+    def get_service_info():
+        from enhanced.topbar import get_preset_samples
+        sysinfo = json.loads(shared.token.get_sysinfo().to_json())
+        preset_lsit = get_preset_samples()
+        service_info = dict(
+            p2p_addr = shared.token.get_p2p_address(),
+            gpu_name = sysinfo["gpu_name"],
+            gpu_vram = sysinfo["gpu_memory"],
+            ram_total = sysinfo["ram_total"],
+            presets = preset_lsit
+            )
+        return service_info
+
     worker.yield_result = yield_result
     worker.progressbar = progressbar
     worker.p2p_save_and_log = p2p_save_and_log
     worker.stop_processing = stop_processing
     worker.interrupt_processing = interrupt_processing
+    worker.get_service_info = get_service_info
 
     last_active = time.time()
     while True:

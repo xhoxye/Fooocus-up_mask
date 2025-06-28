@@ -19,13 +19,14 @@ import utils.extra_config
 import logging
 import sys
 
+
+setup_logger(log_level=args.verbose, use_stdout=args.log_stdout)
+
 if __name__ == "__main__":
     #NOTE: These do not do anything on core ComfyUI, they are for custom nodes.
     os.environ['HF_HUB_DISABLE_TELEMETRY'] = '1'
     os.environ['DO_NOT_TRACK'] = '1'
 
-
-setup_logger(log_level=args.verbose, use_stdout=args.log_stdout)
 
 def apply_custom_paths():
     # extra model paths
