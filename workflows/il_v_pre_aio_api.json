@@ -1206,7 +1206,7 @@
         0
       ],
       "on_true": [
-        "213",
+        "637",
         0
       ],
       "on_false": [
@@ -1217,18 +1217,6 @@
     "class_type": "easy ifElse",
     "_meta": {
       "title": "If else"
-    }
-  },
-  "213": {
-    "inputs": {
-      "conditioning": [
-        "463",
-        0
-      ]
-    },
-    "class_type": "ConditioningZeroOut",
-    "_meta": {
-      "title": "ConditioningZeroOut"
     }
   },
   "214": {
@@ -6547,6 +6535,19 @@
     "class_type": "BatchCropFromMaskAdvanced",
     "_meta": {
       "title": "Batch Crop From Mask Advanced"
+    }
+  },
+  "637": {
+    "inputs": {
+      "text": "masterpiece, best quality,  absurdres, newest,  very aesthetic, amazing quality,highres,sensitive",
+      "clip": [
+        "242",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Prompt)"
     }
   }
 }

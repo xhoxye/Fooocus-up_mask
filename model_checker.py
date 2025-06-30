@@ -1779,7 +1779,7 @@ packages = {
         "nunchaku_fp4_aio_package": {
         "id": 29,
         "name": "[29]双截棍fp4量化Flux扩展包",
-        "note": "仅适配50系-默认模型[svdq-fp4]|显存需求：★★★ 速度：★★★",
+        "note": "仅适配50系-默认模型[svdq-fp4]|显存需求：★★☆ 速度：★★★",
         "files": [
             ("checkpoints/svdq-fp4_r32-flux.1-dev.safetensors", 7038706888),
             ("checkpoints/svdq-fp4_r32-flux.1-fill-dev.safetensors", 7040672992),
@@ -1807,6 +1807,21 @@ packages = {
         "【按键下载】"
         ]
     },
+    "kontext_package": {
+        "id": 30,
+        "name": "[30]Flux_Kontext扩展包",
+        "note": "Flux_Kontext指令修图功能扩展包|显存需求：★★★☆ 速度：★★",
+        "files": [
+            ("checkpoints/flux1-dev-kontext_fp8_scaled.safetensors", 11904640136),
+            ("clip/clip_l.safetensors", 246144152),
+            ("clip/t5xxl_fp8_e4m3fn.safetensors", 4893934904),
+            ("loras/flux1-turbo.safetensors", 694082424),
+            ("vae/ae.safetensors", 335304388)
+        ],
+        "download_links": [
+            "https://hf-mirror.com/metercai/SimpleSDXL2/resolve/main/SimpleModels/checkpoints/flux1-dev-kontext_fp8_scaled.safetensors"
+        ]
+    }
 }
 
 MANUAL_DOWNLOAD_MAP = {
