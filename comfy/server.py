@@ -844,7 +844,7 @@ class PromptServer():
     async def send_video(self, video_data, sid=None):
         video_type = video_data[0]
         video = video_data[1]
-    
+
         type_num = 10
         if video_type == "WEBM":
             type_num = 10
