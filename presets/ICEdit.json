@@ -7,8 +7,8 @@
 	"scene_frontend": {
 	    "version": "m1.1",
 	    "theme": ["ICEdit"],
-	    "theme_title": "使用自然语言指令进行图像编辑[支持涂抹蒙版]",
-            "disvisible": ["scene_additional_prompt", "scene_additional_prompt_2", "scene_aspect_ratio", "scene_input_image1", "scene_var_number", "scene_input_image2"],
+	    "theme_title": "使用自然语言指令进行图像编辑[ICEdit Lora版]",
+            "disvisible": ["scene_additional_prompt", "scene_additional_prompt_2", "scene_aspect_ratio", "scene_canvas_image", "scene_var_number", "scene_input_image2"],
 	    "prompt": {
             "ICEdit": ""
 	    },

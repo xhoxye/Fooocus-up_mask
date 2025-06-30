@@ -19,7 +19,7 @@
     "inputs": {
       "image": "welcome.png",
       "image_input": [
-        "111",
+        "130",
         0
       ]
     },
@@ -290,7 +290,7 @@
   "68": {
     "inputs": {
       "image": [
-        "111",
+        "130",
         0
       ]
     },
@@ -494,8 +494,8 @@
     "inputs": {
       "prompt": "",
       "additional_prompt": "",
-      "ip_image": "None",
-      "ip_image1": "None",
+      "ip_image": "welcome.png",
+      "ip_image1": "welcome.png",
       "inpaint_image": "welcome.png",
       "inpaint_mask": "welcome.png",
       "width": 512,
@@ -511,7 +511,7 @@
     "inputs": {
       "image_name": [
         "88",
-        4
+        2
       ],
       "image": "welcome.png"
     },
@@ -541,7 +541,7 @@
   "92": {
     "inputs": {
       "images": [
-        "180",
+        "81",
         0
       ]
     },
@@ -563,117 +563,6 @@
       "title": "🔧 Simple Math"
     }
   },
-  "104": {
-    "inputs": {
-      "mask": [
-        "107",
-        0
-      ]
-    },
-    "class_type": "easy isMaskEmpty",
-    "_meta": {
-      "title": "Is Mask Empty"
-    }
-  },
-  "107": {
-    "inputs": {
-      "channel": "red",
-      "image": [
-        "131",
-        0
-      ]
-    },
-    "class_type": "ImageToMask",
-    "_meta": {
-      "title": "Convert Image to Mask"
-    }
-  },
-  "110": {
-    "inputs": {
-      "detect": "mask_area",
-      "x_adjust": 0,
-      "y_adjust": 0,
-      "scale_adjust": 1.3000000000000003,
-      "mask": [
-        "107",
-        0
-      ]
-    },
-    "class_type": "LayerMask: MaskBoxDetect",
-    "_meta": {
-      "title": "LayerMask: MaskBoxDetect"
-    }
-  },
-  "111": {
-    "inputs": {
-      "boolean": [
-        "104",
-        0
-      ],
-      "on_true": [
-        "130",
-        0
-      ],
-      "on_false": [
-        "179",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
-  "112": {
-    "inputs": {
-      "kernel": 5,
-      "sigma": 10,
-      "inpaint": [
-        "81",
-        0
-      ],
-      "original": [
-        "130",
-        0
-      ],
-      "mask": [
-        "211",
-        0
-      ],
-      "origin": [
-        "113",
-        2
-      ]
-    },
-    "class_type": "BlendInpaint",
-    "_meta": {
-      "title": "Blend Inpaint"
-    }
-  },
-  "113": {
-    "inputs": {
-      "width": [
-        "122",
-        0
-      ],
-      "height": [
-        "122",
-        0
-      ],
-      "image": [
-        "130",
-        0
-      ],
-      "mask": [
-        "107",
-        0
-      ]
-    },
-    "class_type": "CutForInpaint",
-    "_meta": {
-      "title": "Cut For Inpaint"
-    }
-  },
   "119": {
     "inputs": {
       "samples": [
@@ -692,10 +581,7 @@
   },
   "120": {
     "inputs": {
-      "boolean": [
-        "104",
-        0
-      ],
+      "boolean": false,
       "on_true": [
         "80",
         0
@@ -710,43 +596,6 @@
       "title": "If else"
     }
   },
-  "122": {
-    "inputs": {
-      "boolean": [
-        "123",
-        0
-      ],
-      "on_true": [
-        "110",
-        3
-      ],
-      "on_false": [
-        "110",
-        4
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
-  "123": {
-    "inputs": {
-      "comparison": "a >= b",
-      "a": [
-        "110",
-        3
-      ],
-      "b": [
-        "110",
-        4
-      ]
-    },
-    "class_type": "easy compare",
-    "_meta": {
-      "title": "Compare"
-    }
-  },
   "130": {
     "inputs": {
       "upscale_method": "lanczos",
@@ -759,278 +608,6 @@
     "class_type": "ImageScaleToTotalPixels",
     "_meta": {
       "title": "Scale Image to Total Pixels"
-    }
-  },
-  "131": {
-    "inputs": {
-      "upscale_method": "lanczos",
-      "megapixels": 1.6400000000000003,
-      "image": [
-        "133",
-        0
-      ]
-    },
-    "class_type": "ImageScaleToTotalPixels",
-    "_meta": {
-      "title": "Scale Image to Total Pixels"
-    }
-  },
-  "132": {
-    "inputs": {
-      "width": [
-        "89",
-        2
-      ],
-      "height": [
-        "89",
-        3
-      ],
-      "interpolation": "lanczos",
-      "method": "stretch",
-      "condition": "always",
-      "multiple_of": 0,
-      "image": [
-        "112",
-        0
-      ]
-    },
-    "class_type": "ImageResize+",
-    "_meta": {
-      "title": "🔧 Image Resize"
-    }
-  },
-  "133": {
-    "inputs": {
-      "image_name": [
-        "88",
-        5
-      ],
-      "image": "welcome.png"
-    },
-    "class_type": "LoadInputImage",
-    "_meta": {
-      "title": "LoadInputImage"
-    }
-  },
-  "179": {
-    "inputs": {
-      "boolean": [
-        "122",
-        0
-      ],
-      "on_true": [
-        "113",
-        0
-      ],
-      "on_false": [
-        "130",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
-  "180": {
-    "inputs": {
-      "boolean": [
-        "104",
-        0
-      ],
-      "on_true": [
-        "81",
-        0
-      ],
-      "on_false": [
-        "132",
-        0
-      ]
-    },
-    "class_type": "easy ifElse",
-    "_meta": {
-      "title": "If else"
-    }
-  },
-  "182": {
-    "inputs": {
-      "mask": [
-        "186",
-        0
-      ]
-    },
-    "class_type": "InvertMask",
-    "_meta": {
-      "title": "InvertMask"
-    }
-  },
-  "185": {
-    "inputs": {
-      "width": [
-        "122",
-        0
-      ],
-      "height": [
-        "122",
-        0
-      ],
-      "batch_size": 1,
-      "color": 0
-    },
-    "class_type": "EmptyImage",
-    "_meta": {
-      "title": "EmptyImage"
-    }
-  },
-  "186": {
-    "inputs": {
-      "channel": "red",
-      "image": [
-        "185",
-        0
-      ]
-    },
-    "class_type": "ImageToMask",
-    "_meta": {
-      "title": "Convert Image to Mask"
-    }
-  },
-  "188": {
-    "inputs": {
-      "width": [
-        "189",
-        0
-      ],
-      "height": [
-        "189",
-        1
-      ],
-      "batch_size": 1,
-      "color": 0
-    },
-    "class_type": "EmptyImage",
-    "_meta": {
-      "title": "EmptyImage"
-    }
-  },
-  "189": {
-    "inputs": {
-      "image": [
-        "130",
-        0
-      ]
-    },
-    "class_type": "GetImageSize+",
-    "_meta": {
-      "title": "🔧 Get Image Size"
-    }
-  },
-  "190": {
-    "inputs": {
-      "width": [
-        "122",
-        0
-      ],
-      "height": [
-        "122",
-        0
-      ],
-      "image": [
-        "188",
-        0
-      ],
-      "mask": [
-        "107",
-        0
-      ]
-    },
-    "class_type": "CutForInpaint",
-    "_meta": {
-      "title": "Cut For Inpaint"
-    }
-  },
-  "192": {
-    "inputs": {
-      "kernel": 5,
-      "sigma": 10,
-      "inpaint": [
-        "194",
-        0
-      ],
-      "original": [
-        "188",
-        0
-      ],
-      "mask": [
-        "202",
-        0
-      ],
-      "origin": [
-        "190",
-        2
-      ]
-    },
-    "class_type": "BlendInpaint",
-    "_meta": {
-      "title": "Blend Inpaint"
-    }
-  },
-  "194": {
-    "inputs": {
-      "image": [
-        "190",
-        0
-      ]
-    },
-    "class_type": "ImageInvert",
-    "_meta": {
-      "title": "Invert Image"
-    }
-  },
-  "202": {
-    "inputs": {
-      "channel": "red",
-      "image": [
-        "194",
-        0
-      ]
-    },
-    "class_type": "ImageToMask",
-    "_meta": {
-      "title": "Convert Image to Mask"
-    }
-  },
-  "206": {
-    "inputs": {
-      "channel": "red",
-      "image": [
-        "192",
-        0
-      ]
-    },
-    "class_type": "ImageToMask",
-    "_meta": {
-      "title": "Convert Image to Mask"
-    }
-  },
-  "211": {
-    "inputs": {
-      "expand": -50,
-      "incremental_expandrate": 0,
-      "tapered_corners": true,
-      "flip_input": false,
-      "blur_radius": 15,
-      "lerp_alpha": 1,
-      "decay_factor": 1,
-      "fill_holes": false,
-      "mask": [
-        "206",
-        0
-      ]
-    },
-    "class_type": "GrowMaskWithBlur",
-    "_meta": {
-      "title": "Grow Mask With Blur"
     }
   },
   "212": {
