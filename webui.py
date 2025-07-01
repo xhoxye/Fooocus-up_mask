@@ -1570,17 +1570,18 @@ with shared.gradio_root:
 
         def parse_meta(raw_prompt_txt, state_params, scene_input_image1, state_is_generating):
             if state_is_generating:
-                 return [gr.update()]*4
+                 return [gr.update()]*5
             if len(raw_prompt_txt)>=1 and (raw_prompt_txt[-1]=='[' or raw_prompt_txt[-1]=='_'):
-                return [gr.update()] * 3 + [True]
+                return [gr.update()] * 4 + [True]
+            super_prompter_result = gr.update(interactive=len(raw_prompt_txt)>0)
             if 'scene_frontend' in state_params and len(raw_prompt_txt)==0 and scene_input_image1 is not None:
                 is_canvas_image = 'scene_canvas_image' not in state_params["scene_frontend"].get('disvisible', [])
                 if not is_canvas_image:
-                    return [gr.update(), gr.update(visible=False), gr.update(visible=True), gr.update()]
+                    return [gr.update(), super_prompter_result, gr.update(visible=False), gr.update(visible=True), gr.update()]
             
-            return [gr.update(), gr.update(visible=True), gr.update(visible=False), gr.update()]
+            return [gr.update(), super_prompter_result, gr.update(visible=True), gr.update(visible=False), gr.update()]
 
-        prompt.change(parse_meta, inputs=[prompt, state_topbar, scene_input_image1, state_is_generating], outputs=[prompt, generate_button, load_parameter_button, prompt_panel_checkbox], queue=False, show_progress=False)      
+        prompt.change(parse_meta, inputs=[prompt, state_topbar, scene_input_image1, state_is_generating], outputs=[prompt, super_prompter, generate_button, load_parameter_button, prompt_panel_checkbox], queue=False, show_progress=False)      
 
         def trigger_metadata_import(file, state_is_generating, state_params):
             parameters, metadata_scheme = modules.meta_parser.read_info_from_image(file)
