@@ -24,10 +24,10 @@
                 },
                 "var_number_max": 4,
                 "aspect_ratio" : ["9:16", "4:5", "4:3", "3:2", "16:9"],
-		"agent_prompt" : {
-		    "FluxKontext": "agent prompt text",
-		    "FluxKontextFast": "agent prompt text"
-		}
+                "agent_prompt" : {
+                    "FluxKontext": "Translate Chinese image edits to precise English prompts with: 1.Specific descriptors (colors=hex codes); 2.Step-by-step modifications; 3.Explicit preservation clauses (e.g.'keep background unchanged'); 4.Action verbs (Change/Replace/Remove); Templates: 'Change [X] to [Y], keep [Z]'; 'Remove [element] while maintaining [aspect]'; 'Replace text [...] maintaining font'; Style conversions require named styles + texture details; Character consistency requires detailed feature preservation; Avoid vague transformations; Handle common errors: For text removal use 'Remove' not 'transparent', position preservation, gradual clothing changes, style accuracy with texture terms.Here is my original prompt:",
+                    "FluxKontextFast": "Translate Chinese image edits to precise English prompts with: 1.Specific descriptors (colors=hex codes); 2.Step-by-step modifications; 3.Explicit preservation clauses (e.g.'keep background unchanged'); 4.Action verbs (Change/Replace/Remove); Templates: 'Change [X] to [Y], keep [Z]'; 'Remove [element] while maintaining [aspect]'; 'Replace text [...] maintaining font'; Style conversions require named styles + texture details; Character consistency requires detailed feature preservation; Avoid vague transformations; Handle common errors: For text removal use 'Remove' not 'transparent', position preservation, gradual clothing changes, style accuracy with texture terms.Here is my original prompt:"
+                }
             }
     },
     "default_model": "flux1-dev-kontext_fp8_scaled.safetensors",
