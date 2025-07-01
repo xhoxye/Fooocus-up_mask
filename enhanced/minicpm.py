@@ -148,13 +148,13 @@ class MiniCPM:
             result_prompt = result_prompt[:-1]
         return result_prompt
 
-    def extended_prompt(self, input_text, prompt, state, translation_methods='Third APIs'):
+    def extended_prompt(self, input_text, prompt, input_image, state, translation_methods='Third APIs'):
         scenes = state.get("scene_frontend",{})
         theme = state['scene_theme']
         prompt_prompt = flags.get_value_by_scene_theme(state, theme, 'agent_prompt', '')
         if prompt_prompt:
             if MiniCPM.get_enable():
-                return self.interrogate(None, prompt=f'{prompt_prompt}{input_text}')
+                return self.interrogate(input_image, prompt=f'{prompt_prompt}{input_text}')
             else:
                 return input_text
 

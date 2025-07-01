@@ -1438,7 +1438,7 @@ with shared.gradio_root:
             comfyd_active_checkbox.change(lambda x: toggle_comfyd_checked(x), inputs=comfyd_active_checkbox, queue=False, show_progress=False)
             
             import enhanced.superprompter
-            super_prompter.click(lambda x, y, z, s: minicpm.extended_prompt(x, y, s, z), inputs=[prompt, super_prompter_prompt, translation_methods, state_topbar], outputs=prompt, queue=False, show_progress=True)
+            super_prompter.click(lambda x, y, z, i, s: minicpm.extended_prompt(x, y, i, s, z), inputs=[prompt, super_prompter_prompt, translation_methods, scene_input_image1, state_topbar], outputs=prompt, queue=False, show_progress=True)
             scene_params = [scene_theme, scene_canvas_image, scene_input_image1, scene_input_image2, scene_additional_prompt, scene_additional_prompt_2, scene_var_number, scene_aspect_ratio, scene_image_number, scene_mask_color]
             
 
