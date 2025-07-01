@@ -261,7 +261,7 @@ def switch_layout_template(presetdata: dict | str, state_params, preset_url=''):
         scenes_inter = scenes.get('disinteractive', [])
         inter.extend(scenes_inter)
         has_agent = 'agent_prompt' in scenes
-        if has_agent:
+        if has_agent and MiniCPM.get_enable():
             results.append(gr.update(visible=True))    #prompt_internal_panel
             results.append(gr.update(interactive=False))  #random_button
             results.append(gr.update(value="PromptAgent"))  #super_prompter

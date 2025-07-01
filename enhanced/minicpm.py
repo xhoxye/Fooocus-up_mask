@@ -153,7 +153,10 @@ class MiniCPM:
         theme = state['scene_theme']
         prompt_prompt = flags.get_value_by_scene_theme(state, theme, 'agent_prompt', '')
         if prompt_prompt:
-            return self.interrogate(None, prompt=f'{prompt_prompt}{input_text}')
+            if MiniCPM.get_enable():
+                return self.interrogate(None, prompt=f'{prompt_prompt}{input_text}')
+            else:
+                return input_text
 
         if not MiniCPM.get_enable() or not shared.modelsinfo.exists_model(catalog="llms", model_path=MiniCPM.model_file):
             return superprompter.answer(input_text=translator.convert(f'{prompt}{input_text}', translation_methods))
