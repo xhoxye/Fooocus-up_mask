@@ -5,6 +5,7 @@ import shared
 import threading
 import numpy as np
 import modules.config as config
+import modules.flags as flags
 import enhanced.translator as translator
 import enhanced.superprompter as superprompter
 import ldm_patched.modules.model_management
@@ -147,7 +148,13 @@ class MiniCPM:
             result_prompt = result_prompt[:-1]
         return result_prompt
 
-    def extended_prompt(self, input_text, prompt, translation_methods='Third APIs'):
+    def extended_prompt(self, input_text, prompt, state, translation_methods='Third APIs'):
+        scenes = state.get("scene_frontend",{})
+        theme = state['scene_theme']
+        prompt_prompt = flags.get_value_by_scene_theme(state, theme, 'agent_prompt', '')
+        if prompt_prompt:
+            return self.interrogate(None, prompt=f'{prompt_prompt}{input_text}')
+
         if not MiniCPM.get_enable() or not shared.modelsinfo.exists_model(catalog="llms", model_path=MiniCPM.model_file):
             return superprompter.answer(input_text=translator.convert(f'{prompt}{input_text}', translation_methods))
         else:

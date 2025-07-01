@@ -23,7 +23,11 @@
                     "FluxKontextFast":1
                 },
                 "var_number_max": 4,
-                "aspect_ratio" : ["4:5", "3:2", "16:9"]
+                "aspect_ratio" : ["9:16", "4:5", "4:3", "3:2", "16:9"],
+		"agent_prompt" : {
+		    "FluxKontext": "agent prompt text",
+		    "FluxKontextFast": "agent prompt text"
+		}
             }
     },
     "default_model": "flux1-dev-kontext_fp8_scaled.safetensors",

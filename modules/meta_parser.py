@@ -171,11 +171,12 @@ def switch_scene_theme(state, image_number, canvas_image, input_image1, addition
         aspect_ratios = modules.flags.scene_aspect_ratios_mapping_list(aspect_ratios)
         aspect_ratio = modules.flags.scene_aspect_ratios_mapping(aspect_ratio)
     else:
-        aspect_ratios = modules.flags.scene_aspect_ratios_mapping_list(aspect_ratios)[0:3]
+        aspect_ratios = modules.flags.scene_aspect_ratios_mapping_list(aspect_ratios)
         aspect_ratio = '' if len(aspect_ratios)==0 else aspect_ratios[0]
     results.append(get_layout_setting_choices_visible_inter(aspect_ratios, aspect_ratio, 'scene_aspect_ratio', visible, inter))
     results.append(get_layout_update_and_visible_inter(image_number, 'scene_image_number', visible, inter))
     results.append(gr.update(visible= 'scene_canvas_image' not in visible))
+    state['scene_theme'] = theme
     return results
 
 
@@ -259,7 +260,15 @@ def switch_layout_template(presetdata: dict | str, state_params, preset_url=''):
         visible.extend(scenes_visible)
         scenes_inter = scenes.get('disinteractive', [])
         inter.extend(scenes_inter)
-        results.append(gr.update(visible=False))
+        has_agent = 'agent_prompt' in scenes
+        if has_agent:
+            results.append(gr.update(visible=True))    #prompt_internal_panel
+            results.append(gr.update(interactive=False))  #random_button
+            results.append(gr.update(value="PromptAgent"))  #super_prompter
+        else:
+            results.append(gr.update(visible=False))  
+            results.append(gr.update())
+            results.append(gr.update())
         results.append(gr.update(value=True))
         results.append(gr.update(value=False))
         results.append(gr.update(visible=True))
@@ -270,7 +279,9 @@ def switch_layout_template(presetdata: dict | str, state_params, preset_url=''):
         results.append(gr.update(visible=True, interactive=False)) #generate_button
         results.append(gr.update(visible=False))                   #load_parameter_button
     else:
-        results.append(gr.update(visible=True))
+        results.append(gr.update(visible=True))    #prompt_internal_panel
+        results.append(gr.update(visible=True, interactive=True)) #random_button
+        results.append(gr.update(visible=True, value="SuperPrompt"))  #super_prompter
         results.append(gr.update(value=False))
         results.append(gr.update(value=True))
         results.append(gr.update(visible=False))
