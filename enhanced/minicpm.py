@@ -149,19 +149,20 @@ class MiniCPM:
         return result_prompt
 
     def extended_prompt(self, input_text, prompt, input_image, state, translation_methods='Third APIs'):
-        scenes = state.get("scene_frontend",{})
-        theme = state['scene_theme']
-        prompt_prompt = flags.get_value_by_scene_theme(state, theme, 'agent_prompt', '')
-        if prompt_prompt:
-            if MiniCPM.get_enable():
-                return self.interrogate(input_image, prompt=f'{prompt_prompt}{input_text}')
-            else:
-                return input_text
-
-        if not MiniCPM.get_enable() or not shared.modelsinfo.exists_model(catalog="llms", model_path=MiniCPM.model_file):
-            return superprompter.answer(input_text=translator.convert(f'{prompt}{input_text}', translation_methods))
+        if 'scene_frontend' in state:
+            scenes = state['scene_frontend']
+            theme = state['scene_theme']
+            prompt_prompt = flags.get_value_by_scene_theme(state, theme, 'agent_prompt', '')
+            if prompt_prompt:
+                if MiniCPM.get_enable():
+                    return self.interrogate(input_image, prompt=f'{prompt_prompt}{input_text}')
+                else:
+                    return input_text
         else:
-            return self.inference(None, prompt=f'{MiniCPM.prompt_extend}{input_text}')
+            if not MiniCPM.get_enable() or not shared.modelsinfo.exists_model(catalog="llms", model_path=MiniCPM.model_file):
+                return superprompter.answer(input_text=translator.convert(f'{prompt}{input_text}', translation_methods))
+            else:
+                return self.inference(None, prompt=f'{MiniCPM.prompt_extend}{input_text}')
 
     def translate(self, input_text, method=None):
         if not is_chinese(input_text):
