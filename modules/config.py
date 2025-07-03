@@ -12,6 +12,7 @@ import modules.flags
 import modules.sdxl_styles
 import enhanced.all_parameters as ads
 import logging
+import ldm_patched.modules.model_management as mm
 
 from modules.model_loader import load_file_from_url
 from modules.extra_utils import makedirs_with_log, get_files_from_folder, try_eval_env_var
@@ -65,6 +66,7 @@ except Exception as e:
     logger.info('3. There is no "," before the last "}".')
     logger.info('4. All key/value formats are correct.')
 
+shared.gpu_arch = mm.get_current_compute_capability()
 
 def try_load_deprecated_user_path_config():
     global config_dict
@@ -115,28 +117,28 @@ def try_load_deprecated_user_path_config():
 
 try_load_deprecated_user_path_config()
 
-def get_presets():
-    preset_folder = 'presets'
-    presets = ['initial']
-    if not os.path.exists(preset_folder):
-        logger.info('No presets found.')
-        return presets
-
-    return presets + [f[:f.index(".json")] for f in os.listdir(preset_folder) if f.endswith('.json')]
-
-def update_presets():
-    global available_presets
-    available_presets = get_presets()
+def get_gpu_arch_str_in_preset_name():
+    if shared.gpu_arch:
+        if shared.gpu_arch.lower() == 'sm120':
+            return '_fp4'
+        else:
+            return '_int4'
+    return ''
 
 def try_get_preset_content(preset, user_did=None):
     if isinstance(preset, str):
         try:
+            arch_str = get_gpu_arch_str_in_preset_name()
             if preset.endswith('.'):
                 if user_did is None:
                     user_did=shared.token.get_guest_did()
-                preset_path = os.path.join(get_path_in_user_dir('presets', user_did), f'{preset}json')
+                preset_path = os.path.join(get_path_in_user_dir('presets', user_did), f'{preset[:-1]}.json')
+                preset_path2 = os.path.join(get_path_in_user_dir('presets', user_did), f'{preset[:-1]}{arch_str}.json')
             else:
                 preset_path = os.path.join(os.path.abspath(f'./presets/'), f'{preset}.json')
+                preset_path2 = os.path.join(os.path.abspath(f'./presets/'), f'{preset}{arch_str}.json')
+            if os.path.exists(preset_path2):
+                preset_path = preset_path2
             if os.path.exists(preset_path):
                 with open(preset_path, "r", encoding="utf-8") as json_file:
                     json_content = json.load(json_file)
@@ -149,7 +151,6 @@ def try_get_preset_content(preset, user_did=None):
             logger.info(e)
     return {}
 
-available_presets = get_presets()
 preset = args_manager.args.preset
 config_dict.update(try_get_preset_content(preset))
 theme = args_manager.args.theme
@@ -1054,13 +1055,12 @@ def get_base_model_list(engine='Fooocus', task_method=None):
     return base_model_list
 
 def update_files(engine='Fooocus', task_method=None):
-    global modelsinfo, model_filenames, lora_filenames, vae_filenames, wildcard_filenames, available_presets
+    global modelsinfo, model_filenames, lora_filenames, vae_filenames, wildcard_filenames 
     modelsinfo.refresh_from_path()
     model_filenames = get_base_model_list(engine, task_method)
     lora_filenames = modelsinfo.get_model_names('loras')
     vae_filenames = modelsinfo.get_model_names('vae')
     wildcard_filenames = get_files_from_folder(path_wildcards, ['.txt'])
-    available_presets = get_presets()
     return model_filenames, lora_filenames, vae_filenames
 
 

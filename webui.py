@@ -864,11 +864,6 @@ with shared.gradio_root:
         with gr.Column(scale=1, visible=modules.config.default_advanced_checkbox, elem_id="scrollable-box-hidden") as advanced_column:
             with gr.Tab(label='Setting', elem_id="scrollable-box") as setting_tab:
                 preset_instruction = gr.HTML(visible=False, value=topbar.preset_instruction())
-                if not args_manager.args.disable_preset_selection:
-                    preset_selection = gr.Radio(label='Preset',
-                                                choices=modules.config.available_presets,
-                                                value=args_manager.args.preset if args_manager.args.preset else "initial",
-                                                visible=False, interactive=True)
                 with gr.Tab(label="General"):
                     performance_selection = gr.Radio(label='Performance', container=False, 
                                                  choices=flags.Performance.list(),
@@ -1200,16 +1195,12 @@ with shared.gradio_root:
                     results = [gr.update(choices=model_filenames)]
                     results += [gr.update(choices=['None'] + model_filenames)]
                     results += [gr.update(choices=[flags.default_vae] + vae_filenames)]
-                    if not args_manager.args.disable_preset_selection:
-                        results += [gr.update(choices=modules.config.available_presets)]
                     for i in range(modules.config.default_max_lora_number):
                         results += [gr.update(interactive=True),
                                     gr.update(choices=['None'] + lora_filenames), gr.update()]
                     return results
 
                 refresh_files_output = [base_model, refiner_model, vae_name]
-                if not args_manager.args.disable_preset_selection:
-                    refresh_files_output += [preset_selection]
                 refresh_files.click(refresh_files_clicked, [state_topbar], refresh_files_output + lora_ctrls,
                                     queue=False, show_progress=False)
 

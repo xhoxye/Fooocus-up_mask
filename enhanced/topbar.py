@@ -46,6 +46,16 @@ if os.path.exists(enhanced_config):
 else:
     config_ext.update({'fooocus_line': '# 2.1.852', 'simplesdxl_line': '# 2023-12-20'})
 
+def preset_filter(presets):
+    if shared.gpu_arch:
+        if shared.gpu_arch.lower() == 'sm120':
+            results = [p for p in presets if not p[0].endswith('_int4')]
+        else:
+            results = [p for p in presets if not p[0].endswith('_fp4')]
+        results = [[p[0].split('_')[0]] for p in presets]
+    else:
+        results = [p for p in presets]
+    return results
 
 def get_preset_name_list(user_session, ua_hash):
     presets_list = shared.token.get_local_vars("user_presets", "", user_session, ua_hash)
@@ -65,6 +75,7 @@ def get_preset_name_list(user_session, ua_hash):
                 file_times = file_times + file_times2
             presets = sorted(file_times, key=lambda x: x[1], reverse=True)
             presets = [f[0] for f in presets]
+            presets = preset_filter(presets)
             if config.preset in presets:
                 presets.remove(config.preset)
             presets.insert(0, config.preset)
@@ -84,6 +95,7 @@ def get_preset_name_list(user_session, ua_hash):
             file_times = [(f[:-5], os.path.getmtime(os.path.join(path_preset, f))) for f in presets]
             presets = sorted(file_times, key=lambda x: x[1], reverse=True)
             presets = [f[0] for f in presets]
+            presets = preset_filter(presets)
             if config.preset in presets:
                 presets.remove(config.preset)
             presets.insert(0, config.preset)
@@ -108,6 +120,7 @@ def get_preset_samples(user_did=None):
     refresh_model_list(presets, user_did)
     presets.remove(config.preset)
     presets = [[p] for p in presets]
+    presets = preset_filter(presets)
     if user_did:
         preset_samples[user_did] = presets
     else:
@@ -296,10 +309,15 @@ def refresh_nav_bars(state_params):
     user_path_preset = get_path_in_user_dir('presets', user_did)
     num = len(preset_name_list)
     for preset in preset_name_list:
+        arch_str = config.get_gpu_arch_str_in_preset_name()
         if preset.endswith('.'):
-            preset_file = os.path.join(user_path_preset, f'{preset}json')
+            preset_file = os.path.join(user_path_preset, f'{preset[:-1]}.json')
+            preset_file2 = os.path.join(user_path_preset, f'{preset[:-1]}{arch_str}.json')
         else:
             preset_file = os.path.join(path_preset, f'{preset}.json')
+            preset_file2 = os.path.join(path_preset, f'{preset}{arch_str}.json')
+        if os.path.exists(preset_file2):
+            preset_file = preset_file2
         if not os.path.exists(preset_file):
             preset_name_list.remove(preset)
     if num!=len(preset_name_list):
