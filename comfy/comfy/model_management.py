@@ -1474,4 +1474,7 @@ def get_compute_capability(device):
     return f'SM{major}{minor}'
 
 def get_current_compute_capability():
+    if not is_nvidia():
+        return ''
+
     return get_compute_capability(torch.cuda.current_device())
