@@ -47,12 +47,14 @@ else:
     config_ext.update({'fooocus_line': '# 2.1.852', 'simplesdxl_line': '# 2023-12-20'})
 
 def preset_filter(presets):
+    is_list = isinstance(presets[0], list)
     if shared.gpu_arch:
-        if shared.gpu_arch.lower() == 'sm120':
-            results = [p for p in presets if not p[0].endswith('_int4')]
-        else:
-            results = [p for p in presets if not p[0].endswith('_fp4')]
-        results = [[p[0].split('_')[0]] for p in presets]
+        if is_list:
+            presets = [p[0] for p in presets]
+        results = [p.split('_')[0] for p in presets]
+        results = list(dict.fromkeys(results))
+        if is_list:
+            results = [[p] for p in results]
     else:
         results = [p for p in presets]
     return results
