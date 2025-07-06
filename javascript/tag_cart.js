@@ -181,10 +181,11 @@ function initializeTagAssistantLogic() {
         `;
         controlBar.appendChild(formatSelector);
 
+        // 复制按钮
         copyBtn = document.createElement('button');
         copyBtn.id = 'copy-btn';
-        copyBtn.className = 'btn p-2 rounded-lg h-10 w-10 flex-shrink-0';
-        copyBtn.innerHTML = '<i class="fa-solid fa-copy"></i>';
+        copyBtn.className = 'btn p-2 rounded-lg h-10 flex-shrink-0';
+        copyBtn.innerHTML = '<i class="fa-solid fa-copy"></i>&nbsp;复制到提示词框';
         controlBar.appendChild(copyBtn);
 
         nsfwFilterBtn = document.createElement('button');
