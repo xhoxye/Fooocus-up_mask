@@ -52,7 +52,16 @@
         .input-control { background-color: var(--input-bg); }
         html[data-theme='dark'] .input-control { color: white; }
         .input-control:focus { outline: 2px solid var(--input-focus-border); outline-offset: -2px; }
-        
+
+        /* 默认 (亮色) 模式下的背景色，对应 bg-gray-200 */
+        .custom-group-bg {
+            background-color: #e5e7eb;
+        }
+        /* 在暗黑模式下，覆盖背景色，对应 bg-gray-800 */
+        html[data-theme='dark'] .custom-group-bg {
+            background-color: #1f2937;
+        }
+
         .btn {
             background-color: var(--btn-bg);
             color: var(--btn-text);
@@ -131,7 +140,7 @@
             width: 960px;
             max-height: calc(100vh - 160px);
             background-color: var(--bg-color);
-            border-radius: 8px;
+            border-radius: 2px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             z-index: 1000;
             display: none;
