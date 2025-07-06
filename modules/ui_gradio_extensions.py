@@ -47,6 +47,10 @@ def javascript_html():
     topbar_js_path = webpath('javascript/topbar.js')
     canvg_min_js_path = webpath('javascript/umd.min.js')
     status_monitor_path = webpath('javascript/status_monitor.js') 
+    tag_cart_path = webpath('javascript/tag_cart.js') 
+    tailwindcss_path = webpath('javascript/tailwindcss_3.4.16.js') 
+    papaparse_path = webpath('javascript/papaparse.min_5.4.1.js') 
+    Sortable_path = webpath('javascript/Sortable.min_1.15.2.js') 
     samples_path = webpath(os.path.abspath('./sdxl_styles/samples/fooocus_v2.jpg'))
     preset_samples_path = webpath(os.path.abspath('./presets/samples/default.jpg'))
     head = f'<script type="text/javascript">{localization_js(args_manager.args.language)}</script>\n'
@@ -72,7 +76,11 @@ def javascript_html():
 
 def css_html():
     style_css_path = webpath('css/style.css')
+    tag_cart_css_path = webpath('css/tag_cart.css')
+    font_awesome_path = webpath('css/fa_all.min_6.5.2.css')
     head = f'<link rel="stylesheet" property="stylesheet" href="{style_css_path}">'
+    head += f'<link rel="stylesheet" property="stylesheet" href="{tag_cart_css_path}">\n'
+    head += f'<link rel="stylesheet" property="stylesheet" href="{font_awesome_path}">\n'
     return head
 
 
