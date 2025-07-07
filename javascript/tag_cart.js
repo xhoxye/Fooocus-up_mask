@@ -574,7 +574,10 @@ function initializeTagAssistantLogic() {
         if (activeCustomCategoryFilter) tempFilteredTags = tempFilteredTags.filter(tag => tag.customCategory.toLowerCase().includes(`内置分类-${activeCustomCategoryFilter}`.toLowerCase()));
         if (isNsfwFilterActive) tempFilteredTags = tempFilteredTags.filter(tag => !tag.customCategory.toLowerCase().includes('内置分类-禁'));
         if (query) tempFilteredTags = tempFilteredTags.filter(tag => tag.name.toLowerCase().includes(query) || tag.aliases.toLowerCase().includes(query) || tag.translation.toLowerCase().includes(query) || tag.customCategory.toLowerCase().includes(query));
-
+        // 使用 sort 方法对过滤后的标签数组进行排序
+        // (a, b) => b.count - a.count 表示按 count 属性进行倒序排序（从大到小）
+        tempFilteredTags.sort((a, b) => b.count - a.count);
+        
         filteredTags = tempFilteredTags; 
         currentPage = 1; 
         renderTags(); 
