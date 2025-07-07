@@ -10,9 +10,36 @@ function initializeTagAssistantLogic() {
     // Style is already in <head>
 
     // --- 全局状态和常量 ---
-    let webpath = 'file'; // gradio专用 不要删除
-    const DEFAULT_CSV_URL = `${webpath}/tags/danbooru_all.csv`;  // gradio专用 不要删除
-    // const DEFAULT_CSV_URL = 'http://192.168.1.118:8186/file=E:/SimpleAI/SimpAI_win_dev_0509/SimpleSDXL/tags/danbooru_all.csv';    
+    let webpath = 'file'; // gradio专用，保持此行
+    const localCsvUrl = `${webpath}/tags/danbooru_all.csv`; // Gradio 环境的本地路径
+    const remoteCsvUrl = 'https://raw.githubusercontent.com/xhoxye/BooruTagCart/refs/heads/main/assets/danbooru_all.csv'; // 备用的远程公网路径
+    /**
+     * 检查本地 Gradio 路径的 CSV 文件是否存在且可访问。
+     * - 如果成功，返回本地路径。
+     * - 如果失败（如404 Not Found或网络错误），则返回远程备用路径。
+     * 使用 HEAD 请求来提高效率，只获取响应头而不下载整个文件。
+     */
+    async function determineCsvUrl() {
+        try {
+            // 尝试请求本地文件的元信息
+            const response = await fetch(localCsvUrl, { method: 'HEAD' });
+            
+            // response.ok 检查 HTTP 状态码是否为成功状态 (200-299)
+            if (response.ok) {
+                console.log("检测到 Gradio 本地环境，使用本地 CSV 文件。");
+                return localCsvUrl;
+            } else {
+                // 文件在服务器上不存在 (例如 404)，或者访问被拒绝
+                console.warn(`本地 CSV 文件无法访问 (状态: ${response.status})，将使用远程备用文件。`);
+                return remoteCsvUrl;
+            }
+        } catch (error) {
+            // 发生网络错误，或者在静态网页环境中因同源策略导致请求失败
+            console.warn("检查本地 CSV 文件时出错，将使用远程备用文件。错误信息: " + error.message);
+            return remoteCsvUrl;
+        }
+    }
+
     const TAGS_PER_PAGE = 32; // 每页显示的标签数量
     const FIXED_WEIGHT = 1.1; // 固定权重值
 
@@ -39,16 +66,15 @@ function initializeTagAssistantLogic() {
             copy: { zh: '复制到提示词框', en: 'Copy to Prompt' },
             nsfwFilter: { zh: 'NSFW 过滤', en: 'NSFW Filter' },
             clearAll: { zh: '清空已选', en: 'Clear All Selected' },
-            floatBall: { zh: '点击显示标签助手', en: 'Click to show Tag Assistant' },
             toggleLanguage: { zh: '切换显示语言', en: 'Toggle Display Language' }
         },
         categoryFilterNames: {
-            '-1': { zh: '全部', en: 'All' }, '0': { zh: '通用', en: 'General' }, '1': { zh: '作者', en: 'Artist' }, '3': { zh: '版权', en: 'Copyright' },
+            '-1': { zh: '全部', en: 'All' }, '0': { zh: '通用', en: 'General' }, '1': { zh: '画师', en: 'Artist' }, '3': { zh: '作品', en: 'Copyright' },
             '4': { zh: '角色', en: 'Character' }, '5': { zh: '元数据', en: 'Meta' }, '6': { zh: 'Kontext', en: 'Kontext' }
         },
         customCategoryFilterNames: { '人物数量': { zh: '人物数量', en: 'People' }, '画质': { zh: '画质', en: 'Quality' }, '反向': { zh: '反向', en: 'Negative' } },
         categoryMap: {
-            0: { zh: '通用', en: 'General' }, 1: { zh: '作者', en: 'Artist' }, 3: { zh: '版权', en: 'Copyright' }, 4: { zh: '角色', en: 'Character' },
+            0: { zh: '通用', en: 'General' }, 1: { zh: '画师', en: 'Artist' }, 3: { zh: '作品', en: 'Copyright' }, 4: { zh: '角色', en: 'Character' },
             5: { zh: '元数据', en: 'Meta' }, 6: { zh: 'Kontext指令', en: 'Kontext Command' }, 7: { zh: '内置分类1', en: 'Built-in Category 1' }, 8: { zh: '内置分类2', en: 'Built-in Category 2' }
         },
         tagTitleDefaults: {
@@ -71,8 +97,9 @@ function initializeTagAssistantLogic() {
 
     // --- DOM 元素引用 ---
     let selectedTagsContainer, tagDisplayContainer, searchInput, resetSearchBtn, nsfwFilterBtn, clearAllBtn, copyBtn;
-    let paginationContainer, tagFilterBtns, customCategoryFilterBtns, toggleLanguageBtn, floatBall, draggableContainer, draggableHandle;
+    let paginationContainer, tagFilterBtns, customCategoryFilterBtns, toggleLanguageBtn, draggableContainer, draggableHandle;
     let formatBtnGroup, actionBtnGroup, targetBtnGroup; // 用于按钮组容器的引用
+    let closeBtn; // [新增] 关闭按钮的引用
 
     // --- 初始化函数 ---
     function init() {
@@ -83,13 +110,29 @@ function initializeTagAssistantLogic() {
 
         draggableContainer = document.createElement('div');
         draggableContainer.id = 'draggable-container';
-        draggableContainer.className = 'flex flex-col space-y-2 p-4';
+        draggableContainer.className = 'relative flex flex-col space-y-2 p-4'; // [修改] 添加 relative (用于定位子元素) 和 resize-none (禁止缩放)
         draggableContainer.style.display = 'none';
-        
+
+        // --- [修改] 创建一个 header 容器来容纳标题和关闭按钮 ---
+        const headerContainer = document.createElement('div');
+        headerContainer.className = 'flex justify-between items-center w-full flex-shrink-0'; // 使用 Flexbox 布局
+        draggableContainer.appendChild(headerContainer); // 把 header 添加到主容器
+
+        // 创建可拖拽的标题区域，并添加到 header
         draggableHandle = document.createElement('div');
         draggableHandle.id = 'draggable-handle';
-        draggableHandle.className = 'flex-shrink-0';
-        draggableContainer.appendChild(draggableHandle);
+        draggableHandle.className = 'flex-grow cursor-grab'; // flex-grow 让他占据多余空间，把按钮推到右边
+        headerContainer.appendChild(draggableHandle);
+
+        // 创建关闭按钮，并添加到 header
+        closeBtn = document.createElement('button');
+        closeBtn.id = 'close-draggable-btn';
+        // [修改] 移除 absolute 定位，改为方形样式 (rounded-md)，flex-shrink-0 防止被压缩
+        closeBtn.className = 'btn p-1 rounded-md w-5 h-5 flex items-center justify-center flex-shrink-0';
+        closeBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+        closeBtn.title = '关闭';
+        headerContainer.appendChild(closeBtn);
+
 
         selectedTagsContainer = document.createElement('div');
         selectedTagsContainer.id = 'selected-tags-container';
@@ -144,11 +187,16 @@ function initializeTagAssistantLogic() {
         filterBtnsContainer.className = 'flex-shrink-0 flex gap-2';
         draggableContainer.appendChild(filterBtnsContainer);
         filterBtnsContainer.innerHTML = `
-            <button class="tag-filter-btn btn px-3 py-1 text-sm rounded-md active" data-category="-1"></button> <button class="tag-filter-btn btn px-3 py-1 text-sm rounded-md" data-category="0"></button>
-            <button class="tag-filter-btn btn px-3 py-1 text-sm rounded-md" data-category="1"></button> <button class="tag-filter-btn btn px-3 py-1 text-sm rounded-md" data-category="3"></button>
-            <button class="tag-filter-btn btn px-3 py-1 text-sm rounded-md" data-category="4"></button> <button class="tag-filter-btn btn px-3 py-1 text-sm rounded-md" data-category="5"></button>
-            <button class="tag-filter-btn btn px-3 py-1 text-sm rounded-md" data-category="6"></button> <button class="custom-category-filter-btn btn px-3 py-1 text-sm rounded-md" data-custom-category="人物数量"></button>
-            <button class="custom-category-filter-btn btn px-3 py-1 text-sm rounded-md" data-custom-category="画质"></button> <button class="custom-category-filter-btn btn px-3 py-1 text-sm rounded-md" data-custom-category="反向"></button>`;
+            <button class="tag-filter-btn btn px-3 py-1 text-sm rounded-md active" data-category="-1"></button> 
+            <button class="tag-filter-btn btn px-3 py-1 text-sm rounded-md" data-category="0"></button>
+            <button class="tag-filter-btn btn px-3 py-1 text-sm rounded-md" data-category="4"></button> 
+            <button class="tag-filter-btn btn px-3 py-1 text-sm rounded-md" data-category="3"></button>
+            <button class="tag-filter-btn btn px-3 py-1 text-sm rounded-md" data-category="1"></button> 
+            <button class="tag-filter-btn btn px-3 py-1 text-sm rounded-md" data-category="5"></button>
+            <button class="tag-filter-btn btn px-3 py-1 text-sm rounded-md" data-category="6"></button> 
+            <button class="custom-category-filter-btn btn px-3 py-1 text-sm rounded-md" data-custom-category="人物数量"></button>
+            <button class="custom-category-filter-btn btn px-3 py-1 text-sm rounded-md" data-custom-category="画质"></button> 
+            <button class="custom-category-filter-btn btn px-3 py-1 text-sm rounded-md" data-custom-category="反向"></button>`;
         tagFilterBtns = filterBtnsContainer.querySelectorAll('.tag-filter-btn');
         customCategoryFilterBtns = filterBtnsContainer.querySelectorAll('.custom-category-filter-btn');
 
@@ -199,19 +247,19 @@ function initializeTagAssistantLogic() {
         paginationContainer.id = 'pagination-container';
         paginationContainer.className = 'flex-shrink-0 flex justify-center items-center gap-1';
         bottomWrapper.appendChild(paginationContainer);
-
-        floatBall = document.createElement('div');
-        floatBall.id = 'float-ball';
-        floatBall.innerHTML = '<i class="fa-solid fa-tags"></i>';
-        floatBall.style.display = 'flex';
         
         appRootInstance.appendChild(draggableContainer);
-	//appRootInstance.appendChild(floatBall);
         console.log("init() completed.");
     }
 
     // --- 功能模块: 事件监听 ---
     function setupEventListeners() {
+
+        // [新增] 为新的关闭按钮添加点击事件
+        closeBtn.addEventListener('click', () => {
+            draggableContainer.style.display = 'none';
+        });    
+
         searchInput.addEventListener('input', () => {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => applyFiltersAndRender(), 300);
@@ -296,130 +344,6 @@ function initializeTagAssistantLogic() {
             updateUIText(displayEnglishOnly ? 'en' : 'zh');
         });
 
-        // --- 拖拽事件 (保持不变) ---
-        if (floatBall) { ['userSelect', 'webkitUserSelect', 'mozUserSelect', 'msUserSelect'].forEach(prop => floatBall.style[prop] = 'none'); }
-        floatBall.addEventListener('mousedown', (e) => {
-            if (e.button !== 0) return;
-            e.preventDefault();
-            let isFloatBallDragging = false;
-            const startX = e.clientX;
-            const startY = e.clientY;
-            const dragThreshold = 5;
-            const ballRect = floatBall.getBoundingClientRect();
-            let offsetX = e.clientX - ballRect.left;
-            let offsetY = e.clientY - ballRect.top;
-            const onMouseMove = (moveEvent) => {
-                if (!isFloatBallDragging) {
-                    if (Math.abs(moveEvent.clientX - startX) > dragThreshold ||
-                        Math.abs(moveEvent.clientY - startY) > dragThreshold) {
-                        isFloatBallDragging = true;
-                        floatBall.classList.add('dragging');
-                    } else {
-                        return;
-                    }
-                }
-                if (isFloatBallDragging) {
-                    let newX = moveEvent.clientX - offsetX;
-                    let newY = moveEvent.clientY - offsetY;
-                    const viewportWidth = window.innerWidth;
-                    const viewportHeight = window.innerHeight;
-                    const currentBallRect = floatBall.getBoundingClientRect();
-                    if (newX < 0) newX = 0;
-                    if (newY < 0) newY = 0;
-                    if (newX + currentBallRect.width > viewportWidth) newX = viewportWidth - currentBallRect.width;
-                    if (newY + currentBallRect.height > viewportHeight) newY = viewportHeight - currentBallRect.height;
-                    floatBall.style.left = `${newX}px`;
-                    floatBall.style.top = `${newY}px`;
-                    floatBall.style.right = 'auto';
-                    floatBall.style.bottom = 'auto';
-                }
-            };
-            const onMouseUp = () => {
-                document.removeEventListener('mousemove', onMouseMove);
-                document.removeEventListener('mouseup', onMouseUp);
-                if (!isFloatBallDragging) {
-                    if (draggableContainer.style.display === 'none' || draggableContainer.style.display === '') {
-                        draggableContainer.style.display = 'flex';
-                        if (typeof positionDraggableContainer === 'function') {
-                            positionDraggableContainer();
-                        } else {
-                            console.warn("positionDraggableContainer function not found.");
-                        }
-                    } else {
-                        draggableContainer.style.display = 'none';
-                    }
-                }
-                if (isFloatBallDragging) {
-                    floatBall.classList.remove('dragging');
-                }
-                isFloatBallDragging = false;
-            };
-            document.addEventListener('mousemove', onMouseMove);
-            document.addEventListener('mouseup', onMouseUp);
-        });
-        
-        floatBall.addEventListener('touchstart', (e) => {
-            if (e.touches.length !== 1) return;
-            e.preventDefault();
-            let isFloatBallDragging = false;
-            const startX = e.touches[0].clientX;
-            const startY = e.touches[0].clientY;
-            const dragThreshold = 5;
-            const ballRect = floatBall.getBoundingClientRect();
-            let offsetX = e.touches[0].clientX - ballRect.left;
-            let offsetY = e.touches[0].clientY - ballRect.top;
-            const onTouchMove = (moveEvent) => {
-                if (moveEvent.touches.length !== 1) return;
-                if (!isFloatBallDragging) {
-                    if (Math.abs(moveEvent.touches[0].clientX - startX) > dragThreshold ||
-                        Math.abs(moveEvent.touches[0].clientY - startY) > dragThreshold) {
-                        isFloatBallDragging = true;
-                        floatBall.classList.add('dragging');
-                    } else {
-                        return;
-                    }
-                }
-                if (isFloatBallDragging) {
-                    let newX = moveEvent.touches[0].clientX - offsetX;
-                    let newY = moveEvent.touches[0].clientY - offsetY;
-                    const viewportWidth = window.innerWidth;
-                    const viewportHeight = window.innerHeight;
-                    const currentBallRect = floatBall.getBoundingClientRect();
-                    if (newX < 0) newX = 0;
-                    if (newY < 0) newY = 0;
-                    if (newX + currentBallRect.width > viewportWidth) newX = viewportWidth - currentBallRect.width;
-                    if (newY + currentBallRect.height > viewportHeight) newY = viewportHeight - currentBallRect.height;
-                    floatBall.style.left = `${newX}px`;
-                    floatBall.style.top = `${newY}px`;
-                    floatBall.style.right = 'auto';
-                    floatBall.style.bottom = 'auto';
-                }
-            };
-            const onTouchEnd = () => {
-                document.removeEventListener('touchmove', onTouchMove);
-                document.removeEventListener('touchend', onTouchEnd);
-                document.removeEventListener('touchcancel', onTouchEnd);
-                if (!isFloatBallDragging) {
-                    if (draggableContainer.style.display === 'none' || draggableContainer.style.display === '') {
-                        draggableContainer.style.display = 'flex';
-                        if (typeof positionDraggableContainer === 'function') {
-                            positionDraggableContainer();
-                        } else {
-                            console.warn("positionDraggableContainer function not found.");
-                        }
-                    } else {
-                        draggableContainer.style.display = 'none';
-                    }
-                }
-                if (isFloatBallDragging) {
-                    floatBall.classList.remove('dragging');
-                }
-                isFloatBallDragging = false;
-            };
-            document.addEventListener('touchmove', onTouchMove, { passive: false });
-            document.addEventListener('touchend', onTouchEnd);
-            document.addEventListener('touchcancel', onTouchEnd);
-        }, { passive: false });
 
         let isDraggingContainer = false; let containerOffset = { x: 0, y: 0 };
         draggableHandle.addEventListener('mousedown', (e) => { if (e.button !== 0) return; isDraggingContainer = true; containerOffset = { x: e.clientX - draggableContainer.getBoundingClientRect().left, y: e.clientY - draggableContainer.getBoundingClientRect().top }; draggableHandle.style.cursor = 'grabbing'; e.preventDefault(); });
@@ -462,7 +386,6 @@ function initializeTagAssistantLogic() {
                 complete: () => { 
                     console.log("loadCSV completed.");
                     positionDraggableContainer();
-                    positionFloatBall();
                     applyFiltersAndRender(); 
                     updateUIText(displayEnglishOnly ? 'en' : 'zh');
                 },
@@ -478,19 +401,13 @@ function initializeTagAssistantLogic() {
     function positionDraggableContainer() {
         const containerWidth = draggableContainer.offsetWidth; 
         const containerHeight = draggableContainer.offsetHeight;
-        const initialLeft = (window.innerWidth - containerWidth) / 3;
-        const initialTop = (window.innerHeight - containerHeight) / 2;
+        const initialLeft = (window.innerWidth - containerWidth) / 8;
+        const initialTop = (window.innerHeight - containerHeight) / 4;
         draggableContainer.style.top = `${initialTop}px`;
         draggableContainer.style.left = `${initialLeft}px`;
         draggableContainer.style.transform = 'none'; 
     }
 
-    function positionFloatBall() {
-        floatBall.style.top = `400px`; 
-        floatBall.style.left = `20px`;
-        floatBall.style.right = 'auto'; 
-    }
-    
     // --- 功能模块: 渲染与UI更新 ---
     function renderTags() {
         tagDisplayContainer.innerHTML = ''; 
@@ -577,7 +494,7 @@ function initializeTagAssistantLogic() {
         // 使用 sort 方法对过滤后的标签数组进行排序
         // (a, b) => b.count - a.count 表示按 count 属性进行倒序排序（从大到小）
         tempFilteredTags.sort((a, b) => b.count - a.count);
-        
+
         filteredTags = tempFilteredTags; 
         currentPage = 1; 
         renderTags(); 
@@ -676,7 +593,6 @@ function initializeTagAssistantLogic() {
         resetSearchBtn.title = uiTexts.buttonTitles.resetSearch[lang];
         nsfwFilterBtn.title = uiTexts.buttonTitles.nsfwFilter[lang];
         clearAllBtn.title = uiTexts.buttonTitles.clearAll[lang];
-        floatBall.title = uiTexts.buttonTitles.floatBall[lang];
         toggleLanguageBtn.title = uiTexts.buttonTitles.toggleLanguage[lang];
 
         // [已恢复] 恢复对分类过滤按钮文本的更新
@@ -715,7 +631,6 @@ function initializeTagAssistantLogic() {
         }
     }
 
-
     // --- 启动应用 ---
     init();
     applyThemeFromUrl(); 
@@ -732,7 +647,13 @@ function initializeTagAssistantLogic() {
         }
     });
 
-    loadCSV(DEFAULT_CSV_URL);
+    // [修改] 使用新的异步逻辑来决定并加载 CSV
+    // 使用一个异步的立即调用函数表达式 (IIFE) 来处理 URL 的确定和加载
+    (async () => {
+        const finalCsvUrl = await determineCsvUrl(); // 等待函数返回最终的 URL
+        loadCSV(finalCsvUrl);                        // 使用最终的 URL 加载数据
+    })();
+
     updateUIText(displayEnglishOnly ? 'en' : 'zh');
 }
 
