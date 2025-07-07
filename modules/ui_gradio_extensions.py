@@ -50,7 +50,7 @@ def javascript_html():
     tag_cart_path = webpath('javascript/tag_cart.js') 
     tailwindcss_path = webpath('javascript/tailwindcss_3.4.16.js') 
     papaparse_path = webpath('javascript/papaparse.min_5.4.1.js') 
-    sortable_path = webpath('javascript/sortable.min_1.15.2.js') 
+    sortable_path = webpath('javascript/sortable.min_1.15.2f.js') 
     samples_path = webpath(os.path.abspath('./sdxl_styles/samples/fooocus_v2.jpg'))
     preset_samples_path = webpath(os.path.abspath('./presets/samples/default.jpg'))
     head = f'<script type="text/javascript">{localization_js(args_manager.args.language)}</script>\n'
