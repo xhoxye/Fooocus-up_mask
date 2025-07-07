@@ -146,7 +146,7 @@
             display: none;
             flex-direction: column;
             overflow: hidden;
-            resize: vertical;
+            resize: none;
             min-height: 300px;
         }
         #draggable-handle {
