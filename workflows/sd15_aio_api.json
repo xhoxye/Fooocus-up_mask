@@ -2117,7 +2117,7 @@
   },
   "301": {
     "inputs": {
-      "grow_mask_by": 0,
+      "grow_mask_by": 16,
       "pixels": [
         "82",
         0
@@ -3698,7 +3698,7 @@
   },
   "393": {
     "inputs": {
-      "grow_mask_by": 0,
+      "grow_mask_by": 16,
       "pixels": [
         "513",
         0
