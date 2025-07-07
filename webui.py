@@ -66,6 +66,12 @@ def get_start_timestamp(request: gr.Request):
         print(f'new messages: {shared.token.get_global_msg_all()}')
     return f'{START_TIMESTAMP},{qsize},{vram_ram_info[0]},{vram_ram_info[1]},{vram_ram_info[2]},{vram_ram_info[3]},{online_users},{domain_online_users},{domain_online_nodes}'
 
+def get_wildcards_list(request: gr.Request):
+    wildcard_list = wildcards.get_wildcards_samples(trans=False)
+    wildcard_list = [w[0] for w in wildcard_list]
+    wildcard_list = ','.join(wildcard_list)
+    return wildcard_list
+
 def get_task(*args):
     args = list(args)
     args.pop(0)
@@ -311,6 +317,7 @@ with shared.gradio_root:
                     for i in range(shared.BUTTON_NUM):
                         bar_buttons.append(gr.Button(value='default' if i==0 else '', size='sm', visible=True, min_width=40, elem_id=f'bar{i}', elem_classes='bar_button'))
                     shared.gradio_root.load(get_start_timestamp, outputs=start_timestamp, queue=False)
+                    shared.gradio_root.load(get_wildcards_list, outputs=start_timestamp, queue=False)
                 with gr.Row(visible=False, elem_classes='preset_store') as preset_store:
                     preset_store_list = gr.Dataset(label="My preset store: Click on the preset in store to append it to the navigation. If it is already on, it will be automatically removed.", components=[gallery_index_stat], samples=topbar.get_preset_samples(), visible=True, samples_per_page=48, type='index')
                 with gr.Row():

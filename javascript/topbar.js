@@ -479,8 +479,7 @@ document.addEventListener("DOMContentLoaded", function() {
     canvas.height = 343;
     canvas.id = "qrcode";
     canvas.style.display = "none";
-   
-    
+  
     try {
         gradioApp().appendChild(sysmsg);
     } catch (e) {

@@ -41,7 +41,7 @@ def set_wildcard_path_list(name, list_value):
     else:
         wildcards_list.update({name: [list_value]})
 
-def get_wildcards_samples(path="root"):
+def get_wildcards_samples(path="root", trans=True):
     global wildcards_path, wildcards, wildcards_list, wildcards_translation, wildcards_template, wildcards_weight_range, wildcard_regex
 
     wildcards_list_all = sorted([f[:-4] for f in get_files_from_folder(wildcards_path, ['.txt'], None, variation=True)])
@@ -84,6 +84,8 @@ def get_wildcards_samples(path="root"):
     if wildcards_list_all:
         load_words_translation(True)
         logger.info(f'Refresh and Load {len(wildcards_list_all)}/{len(wildcards.keys())} wildcards: {", ".join(wildcards_list_all)}.')
+    if not trans:
+        return [[x] for x in wildcards_list[path]]
     if args.language=='cn':
         if len(wildcards_translation.keys())==0:
             wildcards_translation_file = os.path.join(wildcards_path, 'cn_list.json')
