@@ -206,7 +206,7 @@ function initializeTagAssistantLogic() {
         floatBall.style.display = 'flex';
         
         appRootInstance.appendChild(draggableContainer);
-        appRootInstance.appendChild(floatBall);
+	//appRootInstance.appendChild(floatBall);
         console.log("init() completed.");
     }
 
@@ -714,6 +714,7 @@ function initializeTagAssistantLogic() {
             html.setAttribute('data-theme', 'light');
         }
     }
+
 
     // --- 启动应用 ---
     init();

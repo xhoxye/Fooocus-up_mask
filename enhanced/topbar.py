@@ -211,6 +211,7 @@ function(system_params) {
     if (sessionCookie) 
         system_params["__session"]=sessionCookie;
     setObserver();
+    bindBtnClick("tag_helper_btn", "draggable-container")
     return system_params;
 }
 '''

@@ -417,9 +417,8 @@ with shared.gradio_root:
                                 elem_id="positive_prompt", container=False, autofocus=False, lines=4
                             )
                             clear_prompt_btn = gr.Button(value="x", elem_classes=["clear-prompt-btn"], visible=True)
-                            prompt_token_counter = gr.HTML(
-                                visible=True, value=0, elem_classes=["tokenCounter"], elem_id="token_counter"
-                            )
+                            prompt_token_counter = gr.HTML(visible=True, value=0, elem_classes=["tokenCounter"], elem_id="token_counter")
+                            tag_helper_btn = gr.HTML('<i class="fa-solid fa-tags"></i>', elem_classes=["tagHelper"], elem_id="tag_helper_btn")
 
                         def calculateTokenCounter(text, style_selections):
                             if len(text) < 1:

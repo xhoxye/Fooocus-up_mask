@@ -559,6 +559,43 @@ div.prose.tokenCounter {
   min-height: auto;
 }
 
+div.block.tagHelper {
+  width: auto;
+  position: absolute;
+  right: 2.6em;
+  bottom: 0.4em;
+  padding: 0 0.3em;
+  opacity: 0.5;
+  color: var(--neutral-100);
+  background-color: var(--secondary-400);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+div.block.tagHelper:hover {
+  opacity: 0.9;
+}
+
+div.block.tagHelper:hover::after {
+  content: "标签助手"; 
+  position: absolute;
+  top: -2em; 
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.2em 0.5em;
+  background-color: var(--secondary-600); 
+  color: var(--neutral-50); 
+  border-radius: var(--radius-sm);
+  font-size: 0.8em;
+  white-space: nowrap;
+  opacity: 0.9;
+  pointer-events: none; 
+  z-index: 1001;
+}
+
+div.block.tagHelper.active {
+  opacity: 1;
+}
 
 .engineClass {
   width: auto; 

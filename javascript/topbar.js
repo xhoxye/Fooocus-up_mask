@@ -164,9 +164,13 @@ function initPresetPreviewOverlay() {
 async function fetchPresetDataFor(name) {
     let time_ver = "t="+Date.now()+"."+Math.floor(Math.random() * 10000);
     const response = await fetch(`${webpath}/presets/${name}.json?${time_ver}`);
-    const data = await response.json();
-    let pos = data.default_model.lastIndexOf('.');
-    return data.default_model.substring(0,pos);
+    if (response.ok) {
+	const data = await response.json();
+        let pos = data.default_model.lastIndexOf('.');
+        return data.default_model.substring(0,pos);
+    } else {
+	return "";
+    }
 }
 
 function setObserver() {
@@ -193,6 +197,14 @@ function setObserver() {
     });
     var config = { childList: true, characterData: true };
     observer.observe(tokenCounter, config);
+}
+
+function toggleComponentVisibility(toggleButton, targetComponentId) {
+    const targetComponent = gradioApp().getElementById(targetComponentId);
+    if (targetComponent) {
+        targetComponent.style.display = targetComponent.style.display === "none" ? "block" : "none";
+	toggleButton.classList.toggle('active'); 
+    }
 }
 
 function getCookie(name) {
@@ -400,6 +412,21 @@ function getRandomTip() {
   return '';
 }
 
+
+function bindBtnClick(btnID, targetID) {
+    const toggleButton = gradioApp().getElementById(btnID);
+    const targetElement = gradioApp().getElementById(targetID);
+    if (toggleButton) {
+	if (targetElement) {
+            toggleButton.addEventListener("click", function () {
+                toggleComponentVisibility(toggleButton, targetID);
+            });
+	} else {
+	    toggleButton.style.display = 'none';
+	}
+    }
+}
+
 const cookieToken = getCookie("aitoken");
 if (!cookieToken) {
     const localStorageToken = localStorage.getItem("aitoken");
@@ -452,6 +479,7 @@ document.addEventListener("DOMContentLoaded", function() {
     canvas.height = 343;
     canvas.id = "qrcode";
     canvas.style.display = "none";
+   
     
     try {
         gradioApp().appendChild(sysmsg);
