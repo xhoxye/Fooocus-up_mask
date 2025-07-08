@@ -12,33 +12,48 @@ function initializeTagAssistantLogic() {
     // --- 全局状态和常量 ---
     let webpath = 'file'; // gradio专用，保持此行
     const localCsvUrl = `${webpath}/tags/danbooru_all.csv`; // Gradio 环境的本地路径
-    const remoteCsvUrl = 'https://raw.githubusercontent.com/xhoxye/BooruTagCart/refs/heads/main/assets/danbooru_all.csv'; // 备用的远程公网路径
+    // [新增] 备用的 Gitee 公网路径
+    const giteeCsvUrl = 'https://gitee.com/metercai/SimpleSDXL/raw/SimpleSDXL_dev/tags/danbooru_all.csv'; 
+    const githubCsvUrl = 'https://raw.githubusercontent.com/xhoxye/BooruTagCart/refs/heads/main/assets/danbooru_all.csv'; // 最终备用的 GitHub 公网路径
+
     /**
-     * 检查本地 Gradio 路径的 CSV 文件是否存在且可访问。
-     * - 如果成功，返回本地路径。
-     * - 如果失败（如404 Not Found或网络错误），则返回远程备用路径。
-     * 使用 HEAD 请求来提高效率，只获取响应头而不下载整个文件。
+     * [优化] 确定CSV文件的最终有效URL，实现三级降级策略。
+     * 1. 尝试本地 Gradio 路径。
+     * 2. 如果失败，尝试 Gitee 远程路径。
+     * 3. 如果再次失败，使用 GitHub 远程路径作为最终兜底。
+     * 使用 HEAD 请求来提高效率，只获取响应头。
      */
     async function determineCsvUrl() {
+        // 1. 尝试本地路径
         try {
-            // 尝试请求本地文件的元信息
             const response = await fetch(localCsvUrl, { method: 'HEAD' });
-            
-            // response.ok 检查 HTTP 状态码是否为成功状态 (200-299)
             if (response.ok) {
                 console.log("检测到 Gradio 本地环境，使用本地 CSV 文件。");
                 return localCsvUrl;
             } else {
-                // 文件在服务器上不存在 (例如 404)，或者访问被拒绝
-                console.warn(`本地 CSV 文件无法访问 (状态: ${response.status})，将使用远程备用文件。`);
-                return remoteCsvUrl;
+                console.warn(`本地 CSV 文件无法访问 (状态: ${response.status})，开始尝试 Gitee 备用路径。`);
+                // 如果本地文件不存在，则在 catch 块中继续尝试 Gitee
+                throw new Error('Local file not found, trying Gitee.');
             }
         } catch (error) {
-            // 发生网络错误，或者在静态网页环境中因同源策略导致请求失败
-            console.warn("检查本地 CSV 文件时出错，将使用远程备用文件。错误信息: " + error.message);
-            return remoteCsvUrl;
+            // 2. 尝试 Gitee 路径
+            try {
+                const response = await fetch(giteeCsvUrl, { method: 'HEAD' });
+                if (response.ok) {
+                    console.log("本地文件加载失败，成功使用 Gitee 作为备用 CSV 文件。");
+                    return giteeCsvUrl;
+                } else {
+                    console.warn(`Gitee 备用路径无法访问 (状态: ${response.status})，将使用最终的 GitHub 路径。`);
+                    return githubCsvUrl;
+                }
+            } catch (giteeError) {
+                console.warn("Gitee 备用路径也无法访问，将使用最终的 GitHub 路径。错误信息: " + giteeError.message);
+                // 3. 返回最终的 GitHub 路径
+                return githubCsvUrl;
+            }
         }
     }
+
 
     const TAGS_PER_PAGE = 32; // 每页显示的标签数量
     const FIXED_WEIGHT = 1.1; // 固定权重值
@@ -106,12 +121,17 @@ function initializeTagAssistantLogic() {
         console.log("init() started.");
         appRootInstance = document.createElement('div');
         appRootInstance.id = 'app-root';
-        appRootInstance.className = 'w-[1000px] flex flex-col p-4 space-y-2 overflow-hidden min-h-[700px]';
-
+        // [修改] 更新 app-root 尺寸以匹配新尺寸
+        appRootInstance.className = 'w-[970px] flex flex-col p-4 space-y-2 overflow-hidden min-h-[460px]';
         draggableContainer = document.createElement('div');
         draggableContainer.id = 'draggable-container';
-        draggableContainer.className = 'relative flex flex-col space-y-2 p-4'; // [修改] 添加 relative (用于定位子元素) 和 resize-none (禁止缩放)
+        // [修改] 移除 border 相关类 (border, border-neutral-300, dark:border-neutral-700)
+        draggableContainer.className = 'absolute flex flex-col space-y-2 p-4 bg-neutral-100 dark:bg-neutral-800 rounded-2xl shadow-lg';
         draggableContainer.style.display = 'none';
+        // [修改] 直接在js中设定新的固定尺寸
+        draggableContainer.style.width = '970px';
+        draggableContainer.style.minHeight = '460px'; // 或使用 .height = '460px'
+
 
         // --- [修改] 创建一个 header 容器来容纳标题和关闭按钮 ---
         const headerContainer = document.createElement('div');
@@ -251,6 +271,36 @@ function initializeTagAssistantLogic() {
         appRootInstance.appendChild(draggableContainer);
         console.log("init() completed.");
     }
+    
+    /**
+     * [优化] 核心定位逻辑改进
+     * 1. 尺寸改为固定的 970x460px。
+     * 2. 上下位置：从视口顶部向下偏移固定值 ()。
+     * 3. 左右位置：计算居中位置后，向左微调 () 以实现靠左效果。
+     */
+    function positionDraggableContainer() {
+        console.log("Positioning draggable container with new logic...");
+        // [修改] 使用新的固定容器尺寸进行计算
+        const containerWidth = 970;
+        const containerHeight = 460;
+
+        // [修改] 上下直接从顶部下移 +加
+        let initialTop = 220;
+
+        // [修改] 左右先计算居中，再向左偏移-减 实现微调
+        let initialLeft = ((window.innerWidth - containerWidth) / 2) - 260;
+        
+        // 确保容器不会完全移出视口顶部或左侧
+        if (initialTop < 10) initialTop = 10;
+        if (initialLeft < 10) initialLeft = 10;
+
+        draggableContainer.style.top = `${initialTop}px`;
+        draggableContainer.style.left = `${initialLeft}px`;
+        // 确保 transform 属性被重置，以防影响绝对定位
+        draggableContainer.style.transform = ''; 
+    }
+
+
 
     // --- 功能模块: 事件监听 ---
     function setupEventListeners() {
@@ -353,19 +403,18 @@ function initializeTagAssistantLogic() {
 
     // --- 功能模块: 加载与解析 CSV ---
     async function loadCSV(source) {
-        console.log("loadCSV started.");
+        console.log("loadCSV started for source:", source);
         allTags = []; 
         try {
             let csvData;
-            if (typeof source === 'string') {
-                const response = await fetch(source);
-                if (!response.ok) {
-                    throw new Error(`网络错误: ${response.status} ${response.statusText}`);
-                }
-                csvData = await response.text();
-            } else {
-                csvData = source;
+            // 因为 determineCsvUrl 已经确保了 source 是有效的，这里直接 fetch
+            const response = await fetch(source);
+            if (!response.ok) {
+                // 虽然 determineCsvUrl 做了检查，但以防万一还是处理错误
+                throw new Error(`网络错误: ${response.status} ${response.statusText}`);
             }
+            csvData = await response.text();
+            
             Papa.parse(csvData, {
                 worker: true, 
                 header: false, 
@@ -385,27 +434,17 @@ function initializeTagAssistantLogic() {
                 },
                 complete: () => { 
                     console.log("loadCSV completed.");
-                    positionDraggableContainer();
+                    // [修改] 不再从这里定位，定位操作在外部提前完成
                     applyFiltersAndRender(); 
                     updateUIText(displayEnglishOnly ? 'en' : 'zh');
                 },
                 error: (err) => { 
-                    console.error("加载或解析CSV时出错:", err);
+                    console.error("解析CSV时出错:", err);
                 }
             });
         } catch (err) {
-            console.error("加载或解析CSV时出错:", err);
+            console.error(`加载CSV源 (${source}) 时出错:`, err);
         }
-    }
-
-    function positionDraggableContainer() {
-        const containerWidth = draggableContainer.offsetWidth; 
-        const containerHeight = draggableContainer.offsetHeight;
-        const initialLeft = (window.innerWidth - containerWidth) / 8;
-        const initialTop = (window.innerHeight - containerHeight) / 4;
-        draggableContainer.style.top = `${initialTop}px`;
-        draggableContainer.style.left = `${initialLeft}px`;
-        draggableContainer.style.transform = 'none'; 
     }
 
     // --- 功能模块: 渲染与UI更新 ---
@@ -635,6 +674,10 @@ function initializeTagAssistantLogic() {
     init();
     applyThemeFromUrl(); 
     setupEventListeners();
+    
+    // [优化] 在所有元素初始化后，立即为浮动框设置一个安全、居中的初始位置。
+    // 这将确保即使用户的外部按钮在任何时候显示该容器，它都有一个明确的、在屏幕内的坐标。
+    positionDraggableContainer();
 
     if (isNsfwFilterActive) nsfwFilterBtn.classList.add('active');
     
