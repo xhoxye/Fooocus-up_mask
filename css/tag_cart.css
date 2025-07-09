@@ -188,3 +188,42 @@
         #float-ball:active {
             cursor: grabbing;
         }
+
+        /* 为标签列表区设置一个固定的高度 */
+        #tag-display-container {
+            /* 之前的样式: flex-grow grid grid-cols-8 grid-rows-4 gap-[6px] overflow-hidden p-1 */
+            /* 我们需要给它一个明确的高度 */
+            height: 140px; /* 这个值需要根据您的布局微调，计算方式见下 */
+        }
+        #secondary-category-container { /* 为二级分类行设置一个固定的最小高度 */
+            margin-top: 6px;
+            min-height: 36px; /* 约等于一行按钮的高度，您可以根据实际情况微调 */
+            box-sizing: border-box; /* 确保 padding 不会增加总高度 */
+            }
+        .tag-item.wildcard-tag { color: #000 !important; } /* [修改点] 在这里修改文字颜色 */
+        html[data-theme="light"] .tag-item.wildcard-tag { background-color: #008080; color: #FFF !important; } /* [新增/修改点] 在这里设置 light 模式专属的文字颜色 */
+        html[data-theme="dark"] .tag-item.wildcard-tag { background-color: #00FFFF; }
+        
+        /* [新增点 2] 自定义标签 (category 9) 的特定样式 */
+        /* 浅色模式下的自定义标签 */
+        html[data-theme="light"] .tag-item.custom-tag {
+            background-color: #B8860B; /* 深金色背景 */
+            color: #FFFFFF !important;    /* 白色文字 */
+        }
+
+        /* 深色模式下的自定义标签 */
+        html[data-theme="dark"] .tag-item.custom-tag {
+            background-color: #FFFF00; /* 亮琥珀色黄色背景 */
+            color: #000000 !important;    /* 黑色文字 */
+        }
+
+        /* [修改] 分类行布局样式 */
+        .category-row .buttons-wrapper { 
+            overflow: hidden; 
+            white-space: nowrap; 
+            display: flex; /* 使用 flex 布局 */
+            align-items: center;
+            gap: 0.5rem; /* 8px gap */
+        }
+        .category-row .buttons-wrapper::-webkit-scrollbar { display: none; }
+        .category-row .buttons-wrapper { -ms-overflow-style: none; scrollbar-width: none; }
