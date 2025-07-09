@@ -2,6 +2,7 @@
 
 // 声明 appRootInstance 在外部作用域
 let appRootInstance;
+let fullTagMap = new Map(); // [新增点 1] 声明一个全局的Map变量，用于快速查找标签
 
 // 将所有核心逻辑封装到一个函数中
 function initializeTagAssistantLogic() {
@@ -17,6 +18,16 @@ function initializeTagAssistantLogic() {
             height: 100%;
             font-size: 1rem;
             color: #888;
+        }
+        /* [新增点 2] 为“未匹配标签”添加特殊样式 */
+        .unmatched-tag {
+            /* 使用CSS变量，使其能自适应亮/暗主题的背景色 */
+            background-color: var(--neutral-100, #F3F4F6); /* 亮色主题下的背景色 */
+            border: 1px dashed var(--neutral-400, #A3A3A3); /* 添加虚线边框以示区分 */
+            color: var(--neutral-500, #737373); /* 文字颜色也变浅一些 */
+        }
+        [data-theme="dark"] .unmatched-tag {
+            background-color: var(--neutral-800, #262626); /* 暗色主题下的背景色 */
         }
     `;
     const styleSheet = document.createElement("style");
@@ -45,7 +56,7 @@ function initializeTagAssistantLogic() {
 
     const TAGS_PER_PAGE = 32; // [修改点 4] 修改这个数字来改变每页显示的按钮数量
     const FIXED_WEIGHT = 1.1; // [修改点 4] 修改这个数字来改变追加标签格式化的默认权重
-    const CATEGORIES_PER_PAGE = 12; // [修改点 4] 修改这个数字来改变每页显示的按钮数量
+    const CATEGORIES_PER_PAGE = 13; // [修改点 4] 修改这个数字来改变每页显示的按钮数量
 
     // --- 全局UI文本配置 (无变化) ---
     const uiTexts = {
@@ -95,6 +106,7 @@ function initializeTagAssistantLogic() {
 
     // --- DOM 元素引用 ---
     let selectedTagsContainer, tagDisplayContainer, searchInput, resetSearchBtn, nsfwFilterBtn, clearAllBtn, copyBtn;
+    let importBtn; // [新增] 在这里声明 importBtn
     let paginationContainer, toggleLanguageBtn, draggableContainer, draggableHandle, closeBtn;
     let formatBtnGroup, actionBtnGroup, targetBtnGroup;
     let primaryCategoryRow, secondaryCategoryRow;
@@ -141,6 +153,24 @@ function initializeTagAssistantLogic() {
         resetSearchBtn.id = 'reset-search-btn'; resetSearchBtn.className = 'absolute right-2 top-1/2 -translate-y-1/2 p-1'; resetSearchBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
         searchWrapper.appendChild(searchInput); searchWrapper.appendChild(resetSearchBtn);
         controlBar.appendChild(searchWrapper);
+        
+        // [新增点 3] 创建并添加“导入”按钮
+        // [修改] 移除 const，直接为全局变量赋值
+        // [修改] 替换为这个新版本
+        importBtn = document.createElement('button');
+        importBtn.id = 'import-btn';
+
+        // [核心修改]
+        // 1. 添加 'flex items-center gap-2' 使其成为flex容器，并让图标和文字垂直居中、有2个单位的间距。
+        // 2. 调整内边距，左右padding(px-3)比上下(py-2)稍大，更适合带文字的按钮。
+        importBtn.className = 'btn px-3 py-2 rounded-lg h-10 flex-shrink-0 flex items-center gap-2';
+
+        // [核心修改]
+        // 现在 innerHTML 同时包含图标和包裹在 <span> 中的文字
+        importBtn.innerHTML = '<i class="fa-solid fa-file-import"></i> <span>导入</span>';
+        importBtn.title = '从正面提示词导入'; // 添加悬停提示
+        controlBar.appendChild(importBtn); // 将它添加到 controlBar
+
         copyBtn = document.createElement('button'); copyBtn.id = 'copy-btn'; copyBtn.className = 'btn p-2 rounded-lg h-10 flex-shrink-0'; copyBtn.innerHTML = '<i class="fa-solid fa-copy"></i>';
         nsfwFilterBtn = document.createElement('button'); nsfwFilterBtn.id = 'nsfw-filter-btn'; nsfwFilterBtn.className = 'btn p-2 rounded-lg h-10 w-10 flex-shrink-0 active'; nsfwFilterBtn.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
         toggleLanguageBtn = document.createElement('button'); toggleLanguageBtn.id = 'toggle-language-btn'; toggleLanguageBtn.className = 'btn p-2 rounded-lg h-10 w-10 flex-shrink-0'; toggleLanguageBtn.innerHTML = '<i class="fa-solid fa-language"></i>';
@@ -240,6 +270,7 @@ function initializeTagAssistantLogic() {
         draggableContainer.style.left = `${initialLeft}px`;
         draggableContainer.style.transform = '';
     }
+
     function setupEventListeners() {
         searchInput.addEventListener('input', () => {
             const query = searchInput.value.trim();
@@ -297,6 +328,21 @@ function initializeTagAssistantLogic() {
                 }
             });
         };
+
+
+        // [新增点 7] 绑定导入按钮的点击事件
+        // [修改] 不再使用 getElementById，直接使用我们已经保存的变量
+        if (importBtn) {
+            console.log("找到导入按钮变量，正在绑定点击事件...");
+            importBtn.addEventListener('click', importFromPrompt);
+        } else {
+            // 这个错误理论上不会再发生了
+            console.error("致命错误：importBtn 变量未被正确初始化！");
+        }
+
+        closeBtn.addEventListener('click', () => { draggableContainer.style.display = 'none'; });
+
+
         setupButtonGroupListener(formatBtnGroup, value => activeFormat = value);
         setupButtonGroupListener(actionBtnGroup, value => activeAction = value);
         setupButtonGroupListener(targetBtnGroup, value => activeTarget = value);
@@ -359,6 +405,103 @@ function initializeTagAssistantLogic() {
         }
     }
 
+    /**
+     * [新增点 4] 从正面提示词框导入、解析并更新已选区
+     */
+    async function importFromPrompt() {
+        console.log("[导入流程开始]");
+
+        const promptTextarea = document.querySelector('gradio-app #positive_prompt textarea');
+        if (!promptTextarea) {
+            console.error("[导入中断] 找不到文本框。");
+            return;
+        }
+
+        const text = promptTextarea.value;
+        console.log(`[步骤1] 获取到文本: "${text}"`);
+        if (!text.trim()) {
+            console.log("[导入中断] 文本框为空。");
+            alert("提示：正面提示词输入框是空的。");
+            return;
+        }
+
+        const potentialTags = text.split(',');
+        console.log(`[步骤2] 分割为 ${potentialTags.length} 个潜在标签:`, potentialTags);
+
+        selectedTags = []; // 重置
+        const newlySelectedTags = [];
+        const addedTagNames = new Set();
+
+        for (const rawTag of potentialTags) {
+            const cleanedName = cleanTagName(rawTag);
+            console.log(`[步骤3] 处理 "${rawTag}" -> 清洗为 "${cleanedName}"`);
+            if (!cleanedName || addedTagNames.has(cleanedName)) {
+                continue;
+            }
+            addedTagNames.add(cleanedName);
+
+            if (fullTagMap.has(cleanedName)) {
+                const foundTag = fullTagMap.get(cleanedName);
+                newlySelectedTags.push(foundTag);
+                console.log(`  -> 匹配成功！添加官方标签:`, foundTag);
+            } else {
+                const unmatchedTag = {
+                    name: cleanedName,
+                    translation: "未匹配的标签",
+                    category: -99,
+                    isUnmatched: true,
+                    count: 0,
+                    aliases: '',
+                    customCategory: '',
+                    secondaryCategory: ''
+                };
+                newlySelectedTags.push(unmatchedTag);
+                console.log(`  -> 匹配失败。添加为未匹配标签:`, unmatchedTag);
+            }
+        }
+
+        selectedTags = newlySelectedTags;
+        console.log(`[步骤4] 构建完成，新的 selectedTags 数组 (${selectedTags.length}个):`, selectedTags);
+
+        console.log("[步骤5] 准备刷新UI...");
+        renderSelectedTags();
+        renderTags();
+        console.log("[导入流程结束]");
+    }
+
+    /**
+     * [新增点 5] 清洗从提示词中提取的单个标签字符串的辅助函数
+     * @param {string} rawTag - 从提示词中分割出的原始字符串
+     * @returns {string} - 清理好的、可用作查找键的标签名
+     */
+    function cleanTagName(rawTag) {
+        if (!rawTag) return '';
+        let tag = rawTag.trim();
+        
+        // 移除可能存在的Lora或Lyco格式，例如 <lora:name:1.0> -> ""
+        tag = tag.replace(/<l(ora|yco):.*?>/g, '').trim();
+        if (!tag) return '';
+
+        // 处理转义括号 \( \)，变回 ( )
+        tag = tag.replace(/\\\(/g, '(').replace(/\\\)/g, ')');
+        
+        // 循环去除首尾的圆括号和方括号，以处理多重嵌套如 ((tag))
+        while (tag.startsWith('(') && tag.endsWith(')')) {
+            tag = tag.substring(1, tag.length - 1).trim();
+        }
+        while (tag.startsWith('[') && tag.endsWith(']')) {
+            tag = tag.substring(1, tag.length - 1).trim();
+        }
+
+        // 移除权重，例如 "masterpiece:1.2" -> "masterpiece"
+        tag = tag.split(':')[0].trim();
+        
+        // 将空格替换为下划线，以匹配Danbooru格式
+        tag = tag.replace(/ /g, '_');
+        
+        return tag;
+    }
+
     // loadAllData 函数本身逻辑不变，它仍然是加载所有数据的核心
     async function loadAllData() {
         try {
@@ -372,20 +515,55 @@ function initializeTagAssistantLogic() {
             
             allTags = [...customTagsResult, ...allTags];
 
-            console.log(`所有数据加载和解析完成。总标签数: ${allTags.length}`);
+            // [新增点 6] 填充全量标签Map以优化导入搜索性能
+            fullTagMap.clear();
+            [...allTags, ...searchableWildcardTags].forEach(tag => {
+                if (tag.name) {
+                    fullTagMap.set(tag.name, tag);
+                }
+            });
+
+            console.log(`所有数据加载和解析完成。Map已填充，包含 ${fullTagMap.size} 个唯一标签。`);
             processCategories();
         } catch (error) {
             console.error("加载所有数据时发生严重错误:", error);
-            // 抛出错误，让调用者(triggerDataLoadAndDisplay)能捕获到
-            throw error; 
+            throw error;
         }
-    }    
+    }
 
     // ... loadWildcardData, loadCSV, loadCustomTags 等函数 ...
     // ... 这些函数与您提供的版本完全相同，为节省篇幅已折叠 ...
     // ... 它们内部没有任何逻辑需要为懒加载而修改 ...
+
+    // [修改] 替换您JS文件中旧的 loadWildcardData 函数
     async function loadWildcardData() {
         try {
+            console.log("正在使用官方 API 获取通配符文件列表...");
+            // [新增] 1. 调用官方API获取真实的文件名列表
+            const apiResponse = await fetch('/run/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    fn_index: 1, // 根据文档，fn_index 为 1
+                    data: []
+                })
+            });
+
+            if (!apiResponse.ok) {
+                throw new Error(`通配符API请求失败: ${apiResponse.status} ${apiResponse.statusText}`);
+            }
+
+            const result = await apiResponse.json();
+            const filenamesFromApi = result.data[0]; // "artists,clothes,scenery"
+            
+            // 将API返回的逗号分隔字符串转换为数组，并过滤掉可能的空值
+            const officialFileNames = filenamesFromApi.split(',')
+                .map(name => name.trim())
+                .filter(Boolean); // filter(Boolean) 会移除空字符串
+
+            console.log("从API获取到的官方文件名列表:", officialFileNames);
+
+            // [修改] 2. 仍然加载翻译文件，但仅作查询使用
             const fetchWithTimeout = (url, options = {}, timeout = 5000) => {
                 return Promise.race([fetch(url, options), new Promise((_, reject) => setTimeout(() => reject(new Error('Request timed out')), timeout))]);
             };
@@ -395,23 +573,41 @@ function initializeTagAssistantLogic() {
                 fetchWithTimeout(wildcardCnWordsUrl).catch(e => { console.warn('无法加载通配符词条翻译:', e.message); return { ok: false }; })
             ]);
 
+            let rawTranslations = {};
             if (cnListRes.ok) {
-                const cnListData = await cnListRes.json();
-                wildcardTranslations = cnListData;
-                Object.entries(cnListData).forEach(([key, value]) => { const filename = key.substring(key.lastIndexOf('/') + 1); wildcardFilenames[filename] = value; });
+                rawTranslations = await cnListRes.json(); // 形如 {"wildcards/artists": "艺术家", ...}
             }
-            if (cnWordsRes.ok) { wildcardWordTranslations = await cnWordsRes.json(); }
-            
-            const wildcardFileNames = Object.keys(wildcardFilenames);
-            if (wildcardFileNames.length === 0) { console.log("没有找到通配符文件列表，跳过加载。"); return; }
+            if (cnWordsRes.ok) { 
+                wildcardWordTranslations = await cnWordsRes.json(); 
+            }
 
-            const allWildcardPromises = wildcardFileNames.map(async (filename) => {
+            // [修改] 3. 基于官方列表构建 wildcardFilenames，确保准确性
+            wildcardFilenames = {}; // 清空旧数据
+            officialFileNames.forEach(filename => {
+                const translationKey = `list/${filename}`;
+                // 从翻译文件中查找翻译，如果找不到，就用文件名本身作为显示文本
+                wildcardFilenames[filename] = rawTranslations[translationKey] || filename;
+            });
+
+            console.log("整理后的通配符分类:", wildcardFilenames);
+            
+            // 4. 基于官方列表加载所有通配符词条用于搜索 (这部分逻辑不变，但数据源更准确了)
+            if (officialFileNames.length === 0) { 
+                console.log("API返回的通配符文件列表为空，跳过加载。"); 
+                return; 
+            }
+
+            const allWildcardPromises = officialFileNames.map(async (filename) => {
                 try {
+                    // 注意：这里拼接路径是根据您之前代码的逻辑，确保 webpath 和路径正确
                     const response = await fetch(`${webpath}/wildcards/${filename}.txt`);
                     if (!response.ok) return [];
                     const text = await response.text();
                     return text.split('\n').map(line => line.trim()).filter(line => line !== '');
-                } catch (e) { console.warn(`加载通配符文件 ${filename}.txt 失败:`, e); return []; }
+                } catch (e) { 
+                    console.warn(`加载通配符文件 ${filename}.txt 失败:`, e); 
+                    return []; 
+                }
             });
 
             const allLinesNested = await Promise.all(allWildcardPromises);
@@ -431,8 +627,12 @@ function initializeTagAssistantLogic() {
             console.log(`通配符数据处理完成，共加载 ${searchableWildcardTags.length} 个可搜索词条。`);
         } catch (err) {
             console.error('处理通配符数据时出错:', err);
+            // 出错时清空，避免显示错误/过时的按钮
+            wildcardFilenames = {};
+            searchableWildcardTags = [];
         }
     }
+
     async function loadCSV(source) {
         console.log("loadCSV started for source:", source);
         allTags = [];
@@ -654,12 +854,32 @@ function initializeTagAssistantLogic() {
             applyFiltersAndRender();
         }
     }
+
+    // [修改] 替换为这个新的 handleSecondaryCategorySelect 函数
     async function handleSecondaryCategorySelect(category) {
+        // 确定新的活动分类。如果点击的是当前已激活的，则取消选择 (newActiveCategory 为 null)
         const newActiveCategory = activeSecondaryCategory === category ? null : category;
         
-        if (newActiveCategory) {
-            await selectAndLoadWildcard(newActiveCategory);
+        // 更新活动二级分类的状态
+        activeSecondaryCategory = newActiveCategory;
 
+        // 首先，无条件地重新渲染二级分类按钮，以正确反映高亮状态
+        renderSecondaryCategories();
+
+        // 如果没有新的活动分类（即用户取消了选择），则恢复默认过滤并返回
+        if (!newActiveCategory) {
+            applyFiltersAndRender();
+            return;
+        }
+
+        // [核心逻辑] 根据当前的一级分类，决定下一步操作
+        if (activePrimaryCategory === 'Wildcard') {
+            // --- 这是通配符分类的专属逻辑 ---
+            
+            // 1. 加载并显示该通配符文件的内容
+            await loadAndDisplayWildcardContent(newActiveCategory);
+
+            // 2. [重要] 为通配符创建占位符并添加到已选区
             const wildcardTag = {
                 name: `__${newActiveCategory}__`,
                 translation: `__${wildcardFilenames[newActiveCategory] || newActiveCategory}__`,
@@ -669,11 +889,14 @@ function initializeTagAssistantLogic() {
             toggleTagSelection(wildcardTag);
 
         } else {
-            activeSecondaryCategory = null;
-            renderSecondaryCategories();
+            // --- 这是所有其他（非通配符）二级分类的逻辑 ---
+            
+            // 只需要根据新选择的二级分类来过滤标签列表即可
+            // 不执行任何文件加载，也不添加任何东西到已选区
             applyFiltersAndRender();
         }
     }
+
     async function loadAndDisplayWildcardContent(filename) {
         try {
             const response = await fetch(`${webpath}/wildcards/${filename}.txt`);
@@ -788,6 +1011,15 @@ function initializeTagAssistantLogic() {
             tagEl.dataset.category = tag.category; 
             tagEl.title = generateTagTitle(tag);
             
+            // [修改点] 检查并应用特殊样式
+            if (tag.isUnmatched) {
+                tagEl.classList.add('unmatched-tag');
+            } else if (tag.isCustom) {
+                tagEl.classList.add('custom-tag');
+            } else if (tag.isWildcardPlaceholder || tag.isWildcard) {
+                tagEl.classList.add('wildcard-tag');
+            }
+
             if (tag.isCustom) tagEl.classList.add('custom-tag');
             else if (tag.isWildcardPlaceholder || tag.isWildcard) tagEl.classList.add('wildcard-tag');
 
@@ -826,7 +1058,12 @@ function initializeTagAssistantLogic() {
         const displayedTagElement = tagDisplayContainer.querySelector(`[data-tag-name="${tag.name}"]`);
         if (displayedTagElement) { displayedTagElement.classList.toggle('selected', index === -1); }
     }
+
     function generateTagTitle(tag) {
+        // [修改点] 在函数最开头添加判断
+        if (tag.isUnmatched) {
+            return `未匹配的标签: ${tag.name}\n该标签将按原样保留和导出。`;
+        }
         if (tag.isWildcardPlaceholder) return `通配符: ${tag.name}`;
         if (tag.isWildcard) return `通配符词条\n英文: ${tag.name}\n中文: ${tag.translation || '无'}`;
 
@@ -846,9 +1083,15 @@ function initializeTagAssistantLogic() {
             `${lang === 'zh' ? '二级分类' : 'Secondary'}: ${tag.secondaryCategory || uiTexts.tagTitleDefaults[lang].noSecondaryCategory}`
         ].join('\n');
     }
+
     function formatTags() {
         return selectedTags.map(tag => {
             let tagName = tag.name;
+
+            // [修改点] 在函数开头添加判断
+            if (tag.isUnmatched) {
+                return tagName; // 对于未匹配标签，直接原样返回
+            }
             if (tag.isWildcardPlaceholder || tag.isWildcard) return tagName;
             tagName = tagName.replace(/\(/g, '\\(').replace(/\)/g, '\\)');
             tagName = tagName.replace(/_/g, ' '); 
@@ -856,6 +1099,7 @@ function initializeTagAssistantLogic() {
             return tagName;
         }).join(', '); 
     }
+
     function copyTagsToClipboard() {
         const formattedString = formatTags(); 
         if (!formattedString) return; 
@@ -868,8 +1112,9 @@ function initializeTagAssistantLogic() {
             } else { promptTextarea.value = formattedString; }
             promptTextarea.dispatchEvent(new Event('input', { bubbles: true }));
         } else { console.warn(`未能找到ID为 "${targetId}" 的Gradio文本框。`); }
-        navigator.clipboard.writeText(formattedString).catch(err => console.error('复制失败', err));
+        // navigator.clipboard.writeText(formattedString).catch(err => console.error('复制失败', err));
     }
+
     function updateUIText(lang) {
         searchInput.placeholder = uiTexts.searchInputPlaceholder[lang];
         draggableHandle.textContent = uiTexts.draggableHandleText[lang];
