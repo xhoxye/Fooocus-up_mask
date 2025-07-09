@@ -210,8 +210,6 @@ function(system_params) {
         system_params["__theme"]=url_params["__theme"];
     if (sessionCookie) 
         system_params["__session"]=sessionCookie;
-    setObserver();
-    bindBtnClick("tag_helper_btn", "draggable-container")
     return system_params;
 }
 '''

@@ -189,6 +189,8 @@ class WanControlNet(ModelMixin):
         self.in_channels = controlnet_cfg["in_channels"]
         self.dim = controlnet_cfg["dim"]
         self.num_heads = controlnet_cfg["num_heads"]
+        self.quantized = controlnet_cfg["quantized"]
+        self.base_dtype = controlnet_cfg["base_dtype"]
 
         if controlnet_cfg["conv_out_dim"] != controlnet_cfg["dim"]:
             self.proj_in = nn.Linear(controlnet_cfg["conv_out_dim"], controlnet_cfg["dim"])
@@ -230,11 +232,13 @@ class WanControlNet(ModelMixin):
 
         self.controlnet_mask_embedding = MaskCamEmbed(controlnet_cfg)
 
-    def forward(self, render_latent, render_mask, camera_embedding, temb, device):
+    def forward(self, render_latent, render_mask, camera_embedding, temb, device):        
         controlnet_rotary_emb = self.controlnet_rope(render_latent)
-
-        controlnet_inputs = self.controlnet_patch_embedding(render_latent.to(torch.float32)).to(render_latent.dtype)
-        controlnet_inputs = controlnet_inputs.to(render_latent.dtype)
+        controlnet_inputs = self.controlnet_patch_embedding(render_latent.to(torch.float32))
+        if not self.quantized:
+            controlnet_inputs = controlnet_inputs.to(render_latent.dtype)
+        else:
+            controlnet_inputs = controlnet_inputs.to(self.base_dtype)
 
         controlnet_inputs = controlnet_inputs.flatten(2).transpose(1, 2)
 

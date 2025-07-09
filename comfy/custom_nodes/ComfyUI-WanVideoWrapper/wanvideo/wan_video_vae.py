@@ -626,6 +626,7 @@ class VideoVAE_(nn.Module):
     def decode(self, z, scale):
         self.clear_cache()
         # z: [b,c,t,h,w]
+        pbar = ProgressBar(z.shape[2])
         if isinstance(scale[0], torch.Tensor):
             scale = [s.to(dtype=z.dtype, device=z.device) for s in scale]
             z = z / scale[1].view(1, self.z_dim, 1, 1, 1) + scale[0].view(
@@ -646,6 +647,7 @@ class VideoVAE_(nn.Module):
                                     feat_cache=self._feat_map,
                                     feat_idx=self._conv_idx)
                 out = torch.cat([out, out_], 2) # may add tensor offload
+            pbar.update(1)
         return out
 
     def reparameterize(self, mu, log_var):

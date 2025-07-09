@@ -18,12 +18,18 @@ class DownloadAndLoadWav2VecModel:
     def INPUT_TYPES(s):
         return {
             "required": {
-                "model": (["facebook/wav2vec2-base-960h"],),
+                "model": (
+                    [
+                    "facebook/wav2vec2-base-960h", 
+                    "TencentGameMate/chinese-wav2vec2-base"
+                    ],
+                ),
 
             "base_precision": (["fp32", "bf16", "fp16"], {"default": "fp16"}),
             "load_device": (["main_device", "offload_device"], {"default": "main_device", "tooltip": "Initial device to load the model to, NOT recommended with the larger models unless you have 48GB+ VRAM"}),
             },
         }
+    
 
     RETURN_TYPES = ("WAV2VECMODEL",)
     RETURN_NAMES = ("wav2vec_model", )
@@ -31,7 +37,8 @@ class DownloadAndLoadWav2VecModel:
     CATEGORY = "WanVideoWrapper"
 
     def loadmodel(self, model, base_precision, load_device):
-        from transformers import Wav2Vec2Model, Wav2Vec2Processor
+        from transformers import Wav2Vec2Model, Wav2Vec2Processor, Wav2Vec2FeatureExtractor
+        from ..multitalk.wav2vec2 import Wav2Vec2Model as MultiTalkWav2Vec2Model
         
         base_dtype = {"fp8_e4m3fn": torch.float8_e4m3fn, "fp8_e4m3fn_fast": torch.float8_e4m3fn, "bf16": torch.bfloat16, "fp16": torch.float16, "fp16_fast": torch.float16, "fp32": torch.float32}[base_precision]
         device = mm.get_torch_device()
@@ -46,20 +53,30 @@ class DownloadAndLoadWav2VecModel:
         if not os.path.exists(model_path):
             log.info(f"Downloading Qwen model to: {model_path}")
             from huggingface_hub import snapshot_download
+            ignore_patterns = None
+            if model == "facebook/wav2vec2-base-960h":
+                ignore_patterns = ["*.bin", "*.h5"]
             snapshot_download(
                 repo_id=model,
-                ignore_patterns=["*.bin", "*.h5"],
+                ignore_patterns=ignore_patterns,
                 local_dir=model_path,
                 local_dir_use_symlinks=False,
             )
 
-        wav2vec_processor = Wav2Vec2Processor.from_pretrained(model_path)
-        wav2vec = Wav2Vec2Model.from_pretrained(model_path).to(base_dtype).to(transfomer_load_device).eval()
+        if model == "facebook/wav2vec2-base-960h":
+            wav2vec_processor = Wav2Vec2Processor.from_pretrained(model_path)
+            wav2vec = Wav2Vec2Model.from_pretrained(model_path).to(base_dtype).to(transfomer_load_device).eval()
+        elif model == "TencentGameMate/chinese-wav2vec2-base":
+            wav2vec = MultiTalkWav2Vec2Model.from_pretrained(model_path).to(base_dtype).to(transfomer_load_device).eval()
+            wav2vec_feature_extractor = Wav2Vec2FeatureExtractor.from_pretrained(model_path, local_files_only=True)
 
         wav2vec_processor_model = {
-            "processor": wav2vec_processor,
+            "processor": wav2vec_processor if model == "facebook/wav2vec2-base-960h" else None,
+            "feature_extractor": wav2vec_feature_extractor if model == "TencentGameMate/chinese-wav2vec2-base" else None,
             "model": wav2vec,
-            "dtype": base_dtype,}
+            "dtype": base_dtype,
+            "model_type": model,
+        }
 
         return (wav2vec_processor_model,)
 

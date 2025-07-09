@@ -2,6 +2,7 @@ import importlib.metadata
 import torch
 import logging
 from tqdm import tqdm
+from comfy.utils import ProgressBar
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 log = logging.getLogger(__name__)
 
@@ -47,6 +48,7 @@ def apply_lora(model, device_to, transformer_load_device, params_to_keep=None, d
                 to_load.append((n, m, params))
 
         to_load.sort(reverse=True)
+        pbar = ProgressBar(len(to_load))
         for x in tqdm(to_load, desc="Loading model and applying LoRA weights:", leave=True):
             name = x[0]
             m = x[1]
@@ -74,6 +76,7 @@ def apply_lora(model, device_to, transformer_load_device, params_to_keep=None, d
                     except:
                         continue
             m.comfy_patched_weights = True
+            pbar.update(1)
       
         model.current_weight_patches_uuid = model.patches_uuid
         if low_mem_load:

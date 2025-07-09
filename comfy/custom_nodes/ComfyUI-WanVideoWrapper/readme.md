@@ -1,6 +1,12 @@
-# ComfyUI wrapper nodes for [WanVideo](https://github.com/Wan-Video/Wan2.1)
+# ComfyUI wrapper nodes for [WanVideo](https://github.com/Wan-Video/Wan2.1) and related models.
 
-# WORK IN PROGRESS
+# WORK IN PROGRESS (perpetually)
+
+# Why should I use custom nodes when WanVideo works natively?
+
+Short answer: Unless it's a model/feature not available yet on native, you shouldn't.
+
+Long answer: Due to the complexity of ComfyUI core code, and my lack of coding experience, in many cases it's far easier and faster to implement new models and features to a standalone wrapper, so this is a way to test things relatively quickly. I consider this my personal sandbox (which is obviously open for everyone) to play with without having to worry about compability issues etc, but as such this code is always work in progress and prone to have issues. Also not all new models end up being worth the trouble to implement in core Comfy, though I've also made some patcher nodes to allow using them in native workflows, such as the [ATI](https://huggingface.co/bytedance-research/ATI) node available in this wrapper. This is also the end goal, idea isn't to compete or even offer alternatives to everything available in native workflows. All that said (this is clearly not a sales pitch) I do appreciate everyone using these nodes to explore new releases and possibilities with WanVideo.
 
 # Installation
 1. Clone this repo into `custom_nodes` folder.
@@ -17,7 +23,7 @@ Text encoders to `ComfyUI/models/text_encoders`
 
 Clip vision to `ComfyUI/models/clip_vision`
 
-Transformer to `ComfyUI/models/diffusion_models`
+Transformer (main video model) to `ComfyUI/models/diffusion_models`
 
 Vae to `ComfyUI/models/vae`
 
@@ -25,7 +31,33 @@ You can also use the native ComfyUI text encoding and clip vision loader with th
 
 ![image](https://github.com/user-attachments/assets/6a2fd9a5-8163-4c93-b362-92ef34dbd3a4)
 
+GGUF models can now be loaded in the main model loader as well.
+
 ---
+Supported extra models:
+
+SkyReels: https://huggingface.co/collections/Skywork/skyreels-v2-6801b1b93df627d441d0d0d9
+
+WanVideoFun: https://huggingface.co/collections/alibaba-pai/wan21-fun-v11-680f514c89fe7b4df9d44f17
+
+ReCamMaster: https://github.com/KwaiVGI/ReCamMaster
+
+VACE: https://github.com/ali-vilab/VACE
+
+Phantom: https://huggingface.co/bytedance-research/Phantom
+
+ATI: https://huggingface.co/bytedance-research/ATI
+
+Uni3C: https://github.com/alibaba-damo-academy/Uni3C
+
+MiniMaxRemover: https://huggingface.co/zibojia/minimax-remover
+
+MAGREF: https://huggingface.co/MAGREF-Video/MAGREF
+
+FantasyTalking: https://github.com/Fantasy-AMAP/fantasy-talking
+
+MultiTalk: https://github.com/MeiGen-AI/MultiTalk
+
 
 Examples:
 ---

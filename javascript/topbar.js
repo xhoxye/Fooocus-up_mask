@@ -427,6 +427,12 @@ function bindBtnClick(btnID, targetID) {
     }
 }
 
+function bindPluginBtn() {
+    setObserver();
+    bindBtnClick("tag_helper_btn", "draggable-container");    
+}
+
+
 const cookieToken = getCookie("aitoken");
 if (!cookieToken) {
     const localStorageToken = localStorage.getItem("aitoken");

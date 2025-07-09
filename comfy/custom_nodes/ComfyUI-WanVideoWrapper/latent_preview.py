@@ -98,9 +98,9 @@ def prepare_callback(model, steps, x0_output_dict=None):
         preview_format = "JPEG"
 
     previewer = get_previewer(model.load_device, model.model.latent_format)
-    print("previewer: ", previewer)
 
-    pbar = comfy.utils.ProgressBar(steps)
+    if steps is not None:
+        pbar = comfy.utils.ProgressBar(steps)
     def callback(step, x0, x, total_steps):
         if x0_output_dict is not None:
             x0_output_dict["x0"] = x0
@@ -108,7 +108,8 @@ def prepare_callback(model, steps, x0_output_dict=None):
         preview_bytes = None
         if previewer:
             preview_bytes = previewer.decode_latent_to_preview_image(preview_format, x0)
-        pbar.update_absolute(step + 1, total_steps, preview_bytes)
+        if step is not None:
+            pbar.update_absolute(step + 1, total_steps, preview_bytes)
     return callback
 
 #borrowed VideoHelperSuite https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite/blob/main/videohelpersuite/latent_preview.py

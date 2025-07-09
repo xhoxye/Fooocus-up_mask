@@ -69,7 +69,9 @@ class WanVideoUni3C_ControlnetLoader:
             "num_layers": 20,
             "add_channels": 7,
             "mid_channels": 256,
-            "attention_mode": attention_mode
+            "attention_mode": attention_mode,
+            "quantized": True if quantization != "disabled" else False,
+            "base_dtype": base_dtype
         }
 
         from .controlnet import WanControlNet
@@ -94,7 +96,7 @@ class WanVideoUni3C_ControlnetLoader:
             dtype = torch.float8_e5m2
         else:
             dtype = base_dtype
-        params_to_keep = {"norm", "head", "time_in", "vector_in", "controlnet_patch_embedding", "time_", "img_emb", "modulation", "text_embedding", "adapter"}
+        params_to_keep = {"norm", "head", "time_in", "vector_in", "controlnet_patch_embedding", "time_", "img_emb", "modulation", "text_embedding", "adapter", "proj_in"}
     
         log.info("Using accelerate to load and assign controlnet model weights to device...")
         param_count = sum(1 for _ in controlnet.named_parameters())

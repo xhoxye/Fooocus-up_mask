@@ -1793,7 +1793,8 @@ with shared.gradio_root:
                       .then(inpaint_mode_change, inputs=[inpaint_mode, inpaint_engine_state, outpaint_selections, state_topbar], outputs=[inpaint_additional_prompt, outpaint_selections, example_inpaint_prompts, inpaint_disable_initial_latent, inpaint_engine, inpaint_strength, inpaint_respective_field], show_progress=False, queue=False) \
                       .then(lambda x: x, inputs=aspect_ratios_selections[0], outputs=aspect_ratios_selection, queue=False, show_progress=False) \
                       .then(lambda x: None, inputs=aspect_ratios_selections[0], queue=False, show_progress=False, _js='(x)=>{refresh_aspect_ratios_label(x);}') \
-                      .then(fn=lambda: None, _js='refresh_grid_delayed')
+                      .then(fn=lambda: None, _js='refresh_grid_delayed') \
+                      .then(fn=lambda: None, _js='bindPluginBtn')
 
 def dump_default_english_config():
     from modules.localization import dump_english_config
