@@ -408,6 +408,7 @@ function initializeTagAssistantLogic() {
     /**
      * [新增点 4] 从正面提示词框导入、解析并更新已选区
      */
+    // [修改] 替换为这个具备智能分隔符检测功能的新版本
     async function importFromPrompt() {
         console.log("[导入流程开始]");
 
@@ -425,7 +426,20 @@ function initializeTagAssistantLogic() {
             return;
         }
 
-        const potentialTags = text.split(',');
+        // [核心修改] 智能检测分隔符
+        let potentialTags;
+        if (text.includes(',')) {
+            // 模式一：检测到逗号，使用逗号作为唯一分隔符
+            console.log("[解析模式] 检测到逗号，使用逗号作为主要分隔符。");
+            potentialTags = text.split(',');
+        } else {
+            // 模式二：未检测到逗号，假定是Danbooru风格，使用空格作为分隔符
+            console.log("[解析模式] 未检测到逗号，使用空格作为分隔符。");
+            // 使用正则表达式 \s+ 来分割一个或多个连续的空白字符（空格、换行等）
+            // 这可以避免因多个空格导致数组中出现空字符串。
+            potentialTags = text.split(/\s+/);
+        }
+
         console.log(`[步骤2] 分割为 ${potentialTags.length} 个潜在标签:`, potentialTags);
 
         selectedTags = []; // 重置
@@ -434,7 +448,7 @@ function initializeTagAssistantLogic() {
 
         for (const rawTag of potentialTags) {
             const cleanedName = cleanTagName(rawTag);
-            console.log(`[步骤3] 处理 "${rawTag}" -> 清洗为 "${cleanedName}"`);
+            // console.log(`[步骤3] 处理 "${rawTag}" -> 清洗为 "${cleanedName}"`);
             if (!cleanedName || addedTagNames.has(cleanedName)) {
                 continue;
             }
@@ -443,7 +457,7 @@ function initializeTagAssistantLogic() {
             if (fullTagMap.has(cleanedName)) {
                 const foundTag = fullTagMap.get(cleanedName);
                 newlySelectedTags.push(foundTag);
-                console.log(`  -> 匹配成功！添加官方标签:`, foundTag);
+                //console.log(`  -> 匹配成功！添加官方标签:`, foundTag);
             } else {
                 const unmatchedTag = {
                     name: cleanedName,
@@ -456,7 +470,7 @@ function initializeTagAssistantLogic() {
                     secondaryCategory: ''
                 };
                 newlySelectedTags.push(unmatchedTag);
-                console.log(`  -> 匹配失败。添加为未匹配标签:`, unmatchedTag);
+                //console.log(`  -> 匹配失败。添加为未匹配标签:`, unmatchedTag);
             }
         }
 
