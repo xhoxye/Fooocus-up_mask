@@ -461,7 +461,7 @@ function initializeTagAssistantLogic() {
             } else {
                 const unmatchedTag = {
                     name: cleanedName,
-                    translation: "未匹配的标签",
+                    // translation: "未匹配的标签", // 未匹配标签不需要翻译
                     category: -99,
                     isUnmatched: true,
                     count: 0,
