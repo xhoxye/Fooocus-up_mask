@@ -68,15 +68,15 @@ function initializeTagAssistantLogic() {
         targetButtonLabels: { 'positive': { zh: '正向', en: 'Positive' }, 'negative': { zh: '反向', en: 'Negative' } },
         buttonTitles: {
             resetSearch: { zh: '清空搜索并重置类别', en: 'Clear search & reset categories' },
-            copy: { zh: '复制到提示词框', en: 'Copy to Prompt' },
+            copy: { zh: '发送到提示词框', en: 'Send to Prompt' },
             nsfwFilter: { zh: 'NSFW 过滤', en: 'NSFW Filter' },
             clearAll: { zh: '清空已选', en: 'Clear All Selected' },
             toggleLanguage: { zh: '切换显示语言', en: 'Toggle Display Language' }
         },
         presetCustomCategories: { // [修改点 2] 在这里添加新的自定义分类，直接删除或注释掉您不想要的那一行。添加ID标记和中英文名称。
             // 'ID'是这个分类在代码内部的唯一标识符（ID）。您的CSV文件里的<一级分类>列就需要填写这个字符串。zh 和 en 字段是它在界面上显示的中文和英文名称。
-            'kontext指令': { zh: 'kontext-指令', en: 'kontext' },
-            '人物数量': { zh: '人物数量', en: 'People Count' },
+            'kontext指令': { zh: 'kontext指令', en: 'kontext' },
+            '人物': { zh: '人物', en: 'People' },
             '画质': { zh: '画质', en: 'Quality' },
             '反向': { zh: '反向', en: 'Negative' }
         },
@@ -169,8 +169,8 @@ function initializeTagAssistantLogic() {
 
         // [核心修改]
         // 现在 innerHTML 同时包含图标和包裹在 <span> 中的文字
-        importBtn.innerHTML = '<i class="fa-solid fa-file-import"></i> <span>导入</span>';
-        importBtn.title = '从正面提示词导入'; // 添加悬停提示
+        importBtn.innerHTML = '<i class="fa-solid fa-file-import"></i> <span>读取</span>';
+        importBtn.title = '从正面提示词框中读取文本，并拆分成标签'; // 添加悬停提示
         controlBar.appendChild(importBtn); // 将它添加到 controlBar
 
         copyBtn = document.createElement('button'); copyBtn.id = 'copy-btn'; copyBtn.className = 'btn p-2 rounded-lg h-10 flex-shrink-0'; copyBtn.innerHTML = '<i class="fa-solid fa-copy"></i>';
@@ -764,7 +764,7 @@ function initializeTagAssistantLogic() {
             'Wildcard', 
             //'Kontext', 
             'General', 'Character', 'Copyright', 'Artist',
-            'Meta', 'Custom', 'kontext指令', '人物数量', '画质', '反向'
+            'Meta', 'Custom', 'kontext指令', '人物', '画质', '反向'
         ];
 
         primaryCategories = processedCategories.sort((a, b) => {

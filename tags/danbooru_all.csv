@@ -1,4 +1,4 @@
-﻿1girl,0,6421189,"1girls,sole_female",1个女孩,人物数量
+﻿1girl,0,6421189,"1girls,sole_female",1个女孩,人物,数量
 highres,5,5763262,"high_res,high_resolution,hires",高分辨率,画质
 solo,0,5341029,"female_solo,solo_female",单人,""
 long_hair,0,4677240,"/lh,longhair",长发|齐腰,""
@@ -17,10 +17,10 @@ large_breasts,0,1695304,"big_breasts,large_boobs,large_breast,large_tits,/lb",�
 skirt,0,1665110,"",裙子,""
 blonde_hair,0,1660569,"blond,blonde,/blondeh,blondehair,blond_hair,gold_hair,yellow_hair",金发,""
 white_background,0,1649984,"/wbg,/whitebg",白色背景,""
-multiple_girls,0,1638046,/ngirls,多个女孩,人物数量
+multiple_girls,0,1638046,/ngirls,多个女孩,人物,数量
 black_hair,0,1629553,"/blackh,black-hair,blackhair,dark_hair",黑发,""
 brown_hair,0,1628832,"/brownh,brown-hair,brownhair,brunette,chocolate_hair",棕发|茶发,""
-1boy,0,1534656,"1boys,sole_male",1个男孩,人物数量
+1boy,0,1534656,"1boys,sole_male",1个男孩,人物,数量
 hair_ornament,0,1531485,"hair_accessories,hair_accessory,hair_decs,hair_ornaments,/hornament",发饰,""
 holding,0,1511429,"hold,holding_object",拿着,""
 gloves,0,1462404,glove,手套,""
@@ -36,7 +36,7 @@ thighhighs,0,1238254,"naked_thighhighs,nude_thighhighs,stocking,stockings,/t,thi
 navel,0,1229014,"belly_button,bellybutton",肚脐|腹,""
 jewelry,0,1160654,"jewelery,jewellery",珠宝,""
 ribbon,0,1156960,ribbons,缎带,""
-2girls,0,1095993,"2girl,2_girls",2个女孩,人物数量
+2girls,0,1095993,"2girl,2_girls",2个女孩,人物,数量
 cleavage,0,1072048,"clevage,overboob",乳沟,""
 bare_shoulders,0,1042392,"bare_shoulder,bareshoulders",裸肩|露肩,""
 jacket,0,1040132,"",夹克,""
@@ -105,7 +105,7 @@ nude,0,527901,naked,赤裸,""
 small_breasts,0,527661,"",乳房-小|贫乳|微乳,""
 boots,0,517186,"boot,naked_boots",靴子,""
 hairband,0,512718,hair_band,发箍,""
-multiple_boys,0,508087,/nboys,多个男孩,人物数量
+multiple_boys,0,508087,/nboys,多个男孩,人物,数量
 kantai_collection,3,506703,"kancolle,kankore",战舰少女R，舰娘,""
 collared_shirt,0,504372,collared_blouse,有领衬衫,""
 horns,0,501497,"",角,""
@@ -148,7 +148,7 @@ fang,0,346067,"",一颗尖上牙|虎牙,""
 fate_(series),3,342769,"",命运（系列）,""
 official_art,5,341529,"",官方艺术,""
 bowtie,0,335135,"bow_tie,neck_bow",蝴蝶领结,""
-2boys,0,332960,2boy,2个男孩,人物数量
+2boys,0,332960,2boy,2个男孩,人物,数量
 serafuku,0,329097,"sailor_fuku,/se",水手服|日本女高中生校服,""
 black_skirt,0,327906,"",黑色裙子,""
 signature,0,324907,"artist_signature,autograph,signed",签名,""
@@ -198,7 +198,7 @@ black_dress,0,259809,"",黑色连衣裙,""
 off_shoulder,0,259237,"off-shoulder,off_shoulders",露肩装,""
 orange_hair,0,259232,"",橙发,""
 kimono,0,259143,"",和服,""
-3girls,0,258978,3girl,3个女孩,人物数量
+3girls,0,258978,3girl,3个女孩,人物,数量
 nail_polish,0,258742,"colored_nails,nailpolish,nail_varnish,painted_nails",指甲油,""
 star_(symbol),0,258473,"",星型符号,""
 armpits,0,258091,"armpit,showing_armpits",腋窝,""
@@ -401,7 +401,7 @@ red_skirt,0,119777,"",红色裙子,""
 chinese_clothes,0,118484,"",中国服装,""
 siblings,0,117802,"",兄弟姐妹,""
 frown,0,117389,":(,:{,frowning",皱眉|愁眉苦脸,""
-4girls,0,117303,4girl,4个女孩,人物数量
+4girls,0,117303,4girl,4个女孩,人物,数量
 fruit,0,116307,fruits,水果,""
 alternate_hairstyle,0,115751,"/ahs,alternate_hair_style,alternative_hair_style,alternative_hairstyle",替代的发型,""
 pussy_juice,0,115259,"pussyjuice,pussy_juice_drip,vaginal_juices,wet_pussy",阴液,内置分类-禁
@@ -520,7 +520,7 @@ sharp_teeth,0,90377,"pointed_teeth,pointy_teeth,spiked_teeth",锋利的牙齿,""
 standing_on_one_leg,0,89722,"on_one_foot,on_one_leg,standing_on_one_foot",单腿站立,""
 demon_girl,0,89682,"demongirl,demon_girls,succubus",恶魔女孩,""
 garter_straps,0,89388,garter_strap,吊带带子|看不到腰带,""
-6+girls,0,88681,"6+girl,6girl,6girls,7girls,8girls,9girls",6个以上的女孩,人物数量
+6+girls,0,88681,"6+girl,6girl,6girls,7girls,8girls,9girls",6个以上的女孩,人物,数量
 from_below,0,88649,"low_angle,viewed_from_below,view_from_below",从下面拍|仰视镜头,""
 cardigan,0,88496,"",开襟毛衣|服装,""
 wariza,0,88278,"w-legs,w_legs,w-sitting,w_sitting",鸭子坐|割座,""
@@ -568,12 +568,12 @@ x_hair_ornament,0,81240,"",X字母发饰,""
 feathers,0,81223,feather,羽毛,""
 frilled_skirt,0,81181,"frilly_skirt,ruffled_skirt",荷叶边裙子,""
 parody,0,81105,"",模仿,""
-1other,0,80970,sole_other,1个性别不定的人,人物数量
+1other,0,80970,sole_other,1个性别不定的人,人物,数量
 red_flower,0,80847,"",红花,""
 cloudy_sky,0,80589,"",多云的天空,""
 light_smile,0,80513,"faint_smile,slight_smile",浅浅的微笑,""
 hair_tubes,0,80460,hair_tube,发管,""
-3boys,0,80046,3boy,3个男孩,人物数量
+3boys,0,80046,3boy,3个男孩,人物,数量
 suit,0,79934,three-piece_suit,西装|服装,""
 variant_set,5,79856,"","",""
 backpack,0,79523,"back_pack,ranset,rucksack",背包|双肩包,""
@@ -712,7 +712,7 @@ all_fours,0,62155,"all-fours,hands_and_knees,on_all_fours",四肢着地,""
 group_sex,0,62135,"fivesome,foursome,groupsex",团体性别,""
 single_thighhigh,0,62053,"one_thighhigh,thighhigh",单个大腿袜,""
 shaded_face,0,61981,"shaded_eyes,shadow_over_eyes",阴影的脸,内置分类-禁
-5girls,0,61932,5girl,5个女孩,人物数量
+5girls,0,61932,5girl,5个女孩,人物,数量
 outside_border,0,61776,"cropped_background,out_of_border,outside_of_border",外边框,""
 brooch,0,61703,broach,胸针,""
 china_dress,0,61189,"cheongsam,chinadress,chinese_dress,qipao",中式连衣裙|旗袍,""
@@ -1113,7 +1113,7 @@ white_bra,0,35651,"",白色胸罩,""
 top_hat,0,35628,"magician_hat,tophat",顶礼帽,""
 wide-eyed,0,35605,"eyes_wide,shocked_eyes,wide_eyed,wide_eyes",睁大眼睛,""
 emphasis_lines,0,35505,"",强调线条,""
-4boys,0,35465,4boy,4个男孩,人物数量
+4boys,0,35465,4boy,4个男孩,人物,数量
 cuffs,0,35447,cuff,手枷带,""
 thong,0,35346,thong_panties,丁字裤,""
 out_of_frame,0,35274,"",离开画面,""
@@ -1145,7 +1145,7 @@ tentacle_hair,0,34105,"",触手发型,""
 head_rest,0,34101,chin_rest,头靠着|头枕着|托颊|托腮,""
 notice_lines,0,34047,realization_lines,注意力线条,""
 school_bag,0,33953,schoolbag,书包,""
-6+boys,0,33941,"6+boy,6boy,6boys",6个以上男孩,人物数量
+6+boys,0,33941,"6+boy,6boy,6boys",6个以上男孩,人物,数量
 :q,0,33923,:9,表情符号|伸舌头,""
 broom,0,33914,broomstick,扫帚,""
 hairpin,0,33752,"hair_pin,hairpins",簪|钗,""
@@ -1753,7 +1753,7 @@ witch,0,19145,"sorceress,witch_costume",女巫,""
 red_kimono,0,19129,red_yukata,红色和服,""
 fate/apocrypha,3,19101,"",命运/apocrypha,""
 hair_stick,0,19070,hair_sticks,卷发棒,""
-multiple_others,0,19033,"",多个性别不定的人,人物数量
+multiple_others,0,19033,"",多个性别不定的人,人物,数量
 controller,0,19032,"",控制器,""
 blue_vest,0,18985,"",蓝色马甲,""
 limited_palette,0,18963,restricted_palette,有限调色板,""
@@ -1947,7 +1947,7 @@ highleg_bikini,0,16565,"",高叉比基尼,""
 mega_man_(series),3,16563,rockman,洛克人（系列）,""
 thighlet,0,16562,upper_leg_bracelet,大腿皮带,""
 happy_new_year,0,16556,"",新年快乐,""
-5boys,0,16537,5boy,5个男孩,人物数量
+5boys,0,16537,5boy,5个男孩,人物,数量
 futa_with_female,0,16532,"female_on_futa,futa_on_female",女性与二次元女体化,""
 shibari,0,16515,"rope_bondage,ropebondage",捆绑|绳缚艺术,""
 animal_nose,0,16503,"",动物鼻子,""
@@ -2816,7 +2816,7 @@ flower_field,0,9643,"",花田,""
 rimless_eyewear,0,9637,rimless_glasses,无框眼镜,""
 wardrobe_malfunction,0,9636,/wm,衣柜故障,""
 producer_(idolmaster),4,9633,"",（偶像大师）游戏,""
-2others,0,9632,"",2个性别不定的人,人物数量
+2others,0,9632,"",2个性别不定的人,人物,数量
 bobby_socks,0,9614,"",鲍比袜子,""
 usada_pekora,4,9612,"",USADA PEKORA,""
 two-tone_jacket,0,9611,"",双色夹克,""
@@ -5945,7 +5945,7 @@ beam_rifle,0,3067,"",梁步枪,""
 star_facial_mark,0,3067,"",星形面部印记,""
 multiple_braids,0,3067,"",多股辫,""
 biker_clothes,0,3067,"",专业骑行服,""
-3others,0,3066,"",3个性别不定的人,人物数量
+3others,0,3066,"",3个性别不定的人,人物,数量
 harukawa_maki,4,3065,"",Harukawa Maki,""
 power_symbol,0,3065,"",力量符号,""
 birdcage,0,3065,bird_cage,鸟笼,""
@@ -6184,7 +6184,7 @@ nozomi_(blue_archive),4,2905,"highlander_twintails_conductor_(blue_archive),tach
 wise_(zenless_zone_zero),4,2904,"","",""
 blue_oak,4,2904,"green_oak,green_oak,green_(pokemon),ookido_green",蓝橡树,""
 impossible_leotard,0,2904,"",不可能的连体紧身衣,""
-6+others,0,2903,6others,6个以上性别不定的人,人物数量
+6+others,0,2903,6others,6个以上性别不定的人,人物,数量
 chainmail,0,2902,mail_armor,古代锁子甲,""
 diving_mask,0,2901,"",潜水面罩,""
 ram_(re:zero),4,2901,"",（Re:从零开始的异世界生活）动画,""
@@ -10215,7 +10215,7 @@ red_nose,0,1324,"",红鼻子,""
 amanogawa_kirara,4,1324,"",Amanogawa Kirara,""
 male_rover_(wuthering_waves),4,1324,"","",""
 arven_(pokemon),4,1324,"","",""
-4others,0,1323,"",4个性别不定的人,人物数量
+4others,0,1323,"",4个性别不定的人,人物,数量
 shoulder_blush,0,1323,"",肩膀发红,""
 frye_(splatoon),4,1323,"",（斯普拉遁、喷射战士）游戏,""
 steak,0,1323,"",牛排,""
@@ -15228,7 +15228,7 @@ musouzuki,1,712,"",无双月,""
 minase_nayuki,4,712,"",Minase Nayuki,""
 trapped,0,712,"",被困住的,""
 kawashima_ami,4,712,"",川岛Ami,""
-5others,0,712,"",5个性别不定的人,人物数量
+5others,0,712,"",5个性别不定的人,人物,数量
 tori_(minamopa),1,712,kanaria_(artist),Tori（Minamopa）,""
 uni_(neptunia),4,712,uni_(neptune_series),"",""
 love_hina,3,712,lovehina,爱hina,""
