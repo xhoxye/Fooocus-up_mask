@@ -73,14 +73,16 @@ function initializeTagAssistantLogic() {
             clearAll: { zh: '清空已选', en: 'Clear All Selected' },
             toggleLanguage: { zh: '切换显示语言', en: 'Toggle Display Language' }
         },
-        presetCustomCategories: { // [修改点 2] 在这里添加新的自定义分类，直接删除或注释掉您不想要的那一行
+        presetCustomCategories: { // [修改点 2] 在这里添加新的自定义分类，直接删除或注释掉您不想要的那一行。添加ID标记和中英文名称。
+            // 'ID'是这个分类在代码内部的唯一标识符（ID）。您的CSV文件里的<一级分类>列就需要填写这个字符串。zh 和 en 字段是它在界面上显示的中文和英文名称。
+            'kontext指令': { zh: 'kontext-指令', en: 'kontext' },
             '人物数量': { zh: '人物数量', en: 'People Count' },
             '画质': { zh: '画质', en: 'Quality' },
             '反向': { zh: '反向', en: 'Negative' }
         },
         primaryCategoryNames: {
             'All': { zh: '全部', en: 'All' }, 'General': { zh: '通用', en: 'General' }, 'Artist': { zh: '画师', en: 'Artist' }, 'Copyright': { zh: '作品', en: 'Copyright' },
-            'Character': { zh: '角色', en: 'Character' }, 'Meta': { zh: '元数据', en: 'Meta' }, 'Kontext': { zh: 'Kontext 指令', en: 'Kontext' }, 
+            'Character': { zh: '角色', en: 'Character' }, 'Meta': { zh: '元数据', en: 'Meta' }, 'Kontext': { zh: 'Kontext指令', en: 'Kontext' }, 
             'Wildcard': { zh: '通配符', en: 'Wildcard' },
             'Custom': { zh: '自定义', en: 'Custom' }
         },
@@ -672,7 +674,8 @@ function initializeTagAssistantLogic() {
                             aliases: (data[3] || '').trim(), 
                             translation: (data[4] || '').trim(), 
                             customCategory: (data[5] || '').trim(),
-                            secondaryCategory: (data[6] || '').trim()
+                            secondaryCategory: (data[6] || '').trim(),
+                            remarks: (data[7] || '').trim() // <-- 新增这一行
                         });
                         }
                     },
@@ -744,8 +747,11 @@ function initializeTagAssistantLogic() {
     // ... 剩余所有功能函数与您提供的版本完全相同，为节省篇幅已折叠 ...
     // ... 它们内部没有任何逻辑需要为懒加载而修改 ...
     function processCategories() {
-        // [修改点 1] 在这里增删分类按钮
-        const standardCategories = ['General', 'Character', 'Copyright', 'Artist', 'Meta', 'Kontext', 'Custom']; // <-- 添加 'Custom
+        // [修改点 1] 在这里增删系统分类按钮
+        const standardCategories = [
+            'General', 'Character', 'Copyright', 'Artist', 'Meta', 
+            //'Kontext', 
+            'Custom']; // <-- 添加 'Custom
         const customCategories = Object.keys(uiTexts.presetCustomCategories);
         
         let processedCategories = [...standardCategories, ...customCategories];
@@ -754,8 +760,11 @@ function initializeTagAssistantLogic() {
             processedCategories.push('Wildcard');
         }
         const desiredOrder = [
-            'Wildcard', 'Kontext', 'General', 'Character', 'Copyright', 'Artist',
-            'Meta', 'Custom', '人物数量', '画质', '反向'
+        // [修改点 1] “一级分类按钮的期望顺序”在这里调整分类按钮的顺序，这里填写的分类名称必须与上面 processCategories 函数中生成的分类名称ID一致
+            'Wildcard', 
+            //'Kontext', 
+            'General', 'Character', 'Copyright', 'Artist',
+            'Meta', 'Custom', 'kontext指令', '人物数量', '画质', '反向'
         ];
 
         primaryCategories = processedCategories.sort((a, b) => {
@@ -824,14 +833,18 @@ function initializeTagAssistantLogic() {
         renderSecondaryCategories();
         await loadAndDisplayWildcardContent(categoryName);
     }
+
+    // [新版本] handlePrimaryCategorySelect 函数
     async function handlePrimaryCategorySelect(category) {
         console.log(`一级分类选择: ${category}`);
         activePrimaryCategory = category;
-        activeSecondaryCategory = null;
+        activeSecondaryCategory = null; // 重置二级分类选择
         secondaryCategories.clear();
         secondaryCategoryPage = 1;
 
+        // [核心修改] 逻辑重构，不再使用 "内置分类-" 前缀
         if (category === 'Wildcard') {
+            // --- 通配符逻辑 (保持不变) ---
             const wildcardList = Object.keys(wildcardFilenames).sort();
             secondaryCategories = new Set(wildcardList);
             
@@ -842,28 +855,34 @@ function initializeTagAssistantLogic() {
             }
         } 
         else if (uiTexts.presetCustomCategories[category]) {
+            // --- 新的自定义分类逻辑 ---
             const secondarySet = new Set();
-            const customPrefix = `内置分类-${category}`;
-            allTags.forEach(tag => {
-                if (tag.customCategory.startsWith(customPrefix)) {
-                    const secondary = tag.secondaryCategory.replace(`${customPrefix}-`, '');
-                    if (secondary) secondarySet.add(secondary);
-                }
+            // 1. 筛选出所有属于当前一级分类的标签
+            const relevantTags = allTags.filter(tag => tag.customCategory === category);
+            
+            // 2. 从这些标签中提取二级分类
+            relevantTags.forEach(tag => {
+                // 如果二级分类字段为空，则归入"未分类"；否则使用其自身的值
+                secondarySet.add(tag.secondaryCategory || '未分类');
             });
+
             if (secondarySet.size > 0) {
                 secondaryCategories = new Set(Array.from(secondarySet).sort());
             }
         }
         
+        // 更新一级分类的分页（逻辑不变）
         const categoryIndex = primaryCategories.indexOf(category);
         if (categoryIndex !== -1) {
             primaryCategoryPage = Math.ceil((categoryIndex + 1) / CATEGORIES_PER_PAGE);
         }
         if(category === 'All') primaryCategoryPage = 1;
 
+        // 重新渲染分类按钮
         renderPrimaryCategories();
         renderSecondaryCategories();
         
+        // 如果不是通配符分类，则立即应用筛选并显示结果
         if (category !== 'Wildcard') {
             applyFiltersAndRender();
         }
@@ -932,49 +951,70 @@ function initializeTagAssistantLogic() {
             renderPagination();
         }
     }
+
+    // [新版本] applyFiltersAndRender 函数
     function applyFiltersAndRender() {
+        // 如果正在显示通配符文件内容，则不执行常规过滤
         if (activePrimaryCategory === 'Wildcard' && activeSecondaryCategory) {
             return;
         }
+        
         const query = searchInput.value.toLowerCase().trim();
         let tempFilteredTags = [...allTags, ...searchableWildcardTags];
 
+        // [核心修改 1] 扩大搜索范围，包含 "remarks" 字段
         if (query) {
             tempFilteredTags = tempFilteredTags.filter(tag => 
                 tag.name.toLowerCase().includes(query) || 
                 (tag.aliases && tag.aliases.toLowerCase().includes(query)) || 
                 (tag.translation && tag.translation.toLowerCase().includes(query)) || 
-                (tag.customCategory && tag.customCategory.toLowerCase().includes(query))
+                (tag.customCategory && tag.customCategory.toLowerCase().includes(query)) ||
+                (tag.remarks && tag.remarks.toLowerCase().includes(query)) // <-- 已包含备注搜索
             );
         }
+
+        // [核心修改 2] 简化分类过滤逻辑
         if (activePrimaryCategory && activePrimaryCategory !== 'All') {
             switch (activePrimaryCategory) {
-                case 'General': tempFilteredTags = tempFilteredTags.filter(t => t.category === 0); break;
+                // --- 标准分类 (逻辑不变) ---
+                case 'General':   tempFilteredTags = tempFilteredTags.filter(t => t.category === 0); break;
                 case 'Character': tempFilteredTags = tempFilteredTags.filter(t => t.category === 4); break;
                 case 'Copyright': tempFilteredTags = tempFilteredTags.filter(t => t.category === 3); break;
-                case 'Artist': tempFilteredTags = tempFilteredTags.filter(t => t.category === 1); break;
-                case 'Meta': tempFilteredTags = tempFilteredTags.filter(t => t.category === 5); break;
-                case 'Kontext': tempFilteredTags = tempFilteredTags.filter(t => t.category === 6); break;
-                case 'Custom': tempFilteredTags = tempFilteredTags.filter(t => t.category === 9); break;
-                case 'Wildcard':
+                case 'Artist':    tempFilteredTags = tempFilteredTags.filter(t => t.category === 1); break;
+                case 'Meta':      tempFilteredTags = tempFilteredTags.filter(t => t.category === 5); break;
+                case 'Kontext':   tempFilteredTags = tempFilteredTags.filter(t => t.category === 6); break;
+                case 'Custom':    tempFilteredTags = tempFilteredTags.filter(t => t.category === 9); break;
+                case 'Wildcard':  // (逻辑不变)
                     if (!query) { tempFilteredTags = []; } 
                     else { tempFilteredTags = tempFilteredTags.filter(t => t.isWildcard); }
                     break;
+                // --- 新的自定义分类过滤逻辑 ---
                 default:
                     if (uiTexts.presetCustomCategories[activePrimaryCategory]) {
-                        const customPrefix = `内置分类-${activePrimaryCategory}`;
-                        tempFilteredTags = tempFilteredTags.filter(t => t.customCategory.startsWith(customPrefix));
+                        // 1. 按一级分类筛选
+                        tempFilteredTags = tempFilteredTags.filter(t => t.customCategory === activePrimaryCategory);
+                        
+                        // 2. 如果有二级分类被激活，则进一步筛选
                         if (activeSecondaryCategory) {
-                            const secondaryPrefix = `${customPrefix}-${activeSecondaryCategory}`;
-                            tempFilteredTags = tempFilteredTags.filter(t => t.secondaryCategory === secondaryPrefix);
+                            if (activeSecondaryCategory === '未分类') {
+                                // 如果选择的是"未分类"，则筛选出 secondaryCategory 为空的标签
+                                tempFilteredTags = tempFilteredTags.filter(t => !t.secondaryCategory);
+                            } else {
+                                // 否则，精确匹配二级分类名称
+                                tempFilteredTags = tempFilteredTags.filter(t => t.secondaryCategory === activeSecondaryCategory);
+                            }
                         }
                     }
                     break;
             }
         }
+
+        // NSFW 过滤 (逻辑不变)
         if (isNsfwFilterActive) {
             tempFilteredTags = tempFilteredTags.filter(tag => !tag.customCategory.toLowerCase().includes('内置分类-禁'));
         }
+
+        // 去重、排序和渲染 (逻辑不变)
         const uniqueNames = new Set();
         const uniqueTags = tempFilteredTags.filter(tag => {
             if (uniqueNames.has(tag.name)) return false;
@@ -986,6 +1026,7 @@ function initializeTagAssistantLogic() {
         renderTags(); 
         renderPagination(); 
     }
+
     function renderTags() {
         tagDisplayContainer.innerHTML = ''; 
         const startIndex = (currentPage - 1) * TAGS_PER_PAGE;
@@ -1094,7 +1135,8 @@ function initializeTagAssistantLogic() {
             `${lang === 'zh' ? '类别' : 'Category'}: ${getCategoryName(tag.category)}`,
             `${lang === 'zh' ? '帖子数量' : 'Post Count'}: ${tag.count.toLocaleString()}`,
             `${lang === 'zh' ? '自定义分类' : 'Custom Category'}: ${tag.customCategory || uiTexts.tagTitleDefaults[lang].noCustomCategory}`,
-            `${lang === 'zh' ? '二级分类' : 'Secondary'}: ${tag.secondaryCategory || uiTexts.tagTitleDefaults[lang].noSecondaryCategory}`
+            `${lang === 'zh' ? '二级分类' : 'Secondary'}: ${tag.secondaryCategory || uiTexts.tagTitleDefaults[lang].noSecondaryCategory}`,
+            `${lang === 'zh' ? '备注' : 'Remarks'}: ${tag.remarks || uiTexts.tagTitleDefaults[lang].noTranslation}` // <-- 新增这一行，'无'/'None'的翻译可以复用
         ].join('\n');
     }
 
